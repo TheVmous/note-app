@@ -1,13 +1,13 @@
+use std::env;
 
-enum Actions {
-    Continue,
-    Break,
+#[derive(Debug)]
+pub struct ArgOptions {
+    pub file: Option<String>,
 }
 
-fn input_loop() -> Actions {
-    
-}
-
-fn main() {
-    
+pub fn get_options() -> ArgOptions {
+    let args: Vec<String> = env::args().collect();
+    let file = args.get(1).cloned();
+    let result: ArgOptions = ArgOptions { file };
+    result
 }

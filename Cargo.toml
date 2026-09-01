@@ -6,3 +6,4 @@ edition = "2024"
 [dependencies]
 dioxus = { version = "0.7", features = ["desktop"] }
 clap = "4.6.6"
+text-size = "1.1.1"

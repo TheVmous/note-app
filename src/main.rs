@@ -1,19 +1,14 @@
 #![allow(non_snake_case)]
 
-use crate::ui::open_editor;
+use crate::{editor::Editor, ui::open_editor};
 
+pub mod buffer;
 pub mod cli;
+pub mod editor;
 pub mod ui;
 
-#[derive(Clone)]
-pub struct Buffer {}
-
-#[derive(Default, Clone)]
-pub struct Editor {
-    pub open_buffer: Option<Buffer>,
-}
-
 fn main() {
+    let cli_options = cli::get_options();
     let editor = Editor::default();
     open_editor(editor);
 }
