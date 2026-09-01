@@ -1,79 +1,19 @@
-use std::io::{Write, stdin};
+#![allow(non_snake_case)]
 
-enum Actions {
-    Exit,
-    Create,
-}
+use crate::ui::open_editor;
 
-enum LoopActions {
-    Continue,
-    Break,
-}
+pub mod cli;
+pub mod ui;
 
-impl Actions {
-    pub fn from_input(text: &str) -> Option<Actions> {
-        match text {
-            ":q" => Some(Actions::Exit),
-            ":c" => Some(Actions::Create),
-            other => {
-                println!("{other} is not a valid action!");
-                None
-            }
-        }
-    }
-}
+#[derive(Clone)]
+pub struct Buffer {}
 
-// Fn(String) -> LoopAction
-
-fn input_loop<T>(funct: T)
-where
-    T: Fn(String) -> LoopActions,
-{
-    loop {
-        let stdin = stdin();
-        let mut buffer = String::new();
-
-        stdin.read_line(&mut buffer).expect("couldn't read line");
-        match funct(buffer) {
-            LoopActions::Break => {
-                break;
-            }
-            LoopActions::Continue => {
-                continue;
-            }
-        }
-    }
+#[derive(Default, Clone)]
+pub struct Editor {
+    pub open_buffer: Option<Buffer>,
 }
 
 fn main() {
-    loop {
-        let stdin = stdin();
-        let mut buffer = String::new();
-
-        stdin.read_line(&mut buffer).expect("couldn't read line");
-        println!("You typed {buffer}");
-        match Actions::from_input(buffer.trim()) {
-            Some(Actions::Exit) => {
-                break;
-            }
-            Some(Actions::Create) => loop {
-                let mut name = String::new();
-                stdin.read_line(&mut name).expect("couldnt read file name");
-
-                let file_res = std::fs::File::create_new(&name);
-                match file_res {
-                    Err(er) => {
-                        println!("{er}");
-                    }
-                    Ok(mut file) => {
-                        println!("created!");
-                        break;
-                    }
-                }
-            },
-            None => {
-                continue;
-            }
-        }
-    }
+    let editor = Editor::default();
+    open_editor(editor);
 }
