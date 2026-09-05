@@ -7,13 +7,26 @@ use std::path::Path;
 //TODO: add 'separate structs' for like packages style stuff
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct Config {
+pub struct VisualConfigs {
     pub font_size: f32,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Config {
+    pub visuals: VisualConfigs,
+}
+
+impl Default for VisualConfigs {
+    fn default() -> Self {
+        Self { font_size: 12.0 }
+    }
 }
 
 impl Default for Config {
     fn default() -> Self {
-        Self { font_size: 12.0 }
+        Self {
+            visuals: VisualConfigs::default(),
+        }
     }
 }
 
