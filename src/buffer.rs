@@ -5,20 +5,40 @@ use thiserror::Error;
 
 #[derive(Default, Clone)]
 pub struct Buffer {
-    pub path: Option<PathBuf>,
+    pub path: PathBuf,
     pub content: String,
     pub cursor: TextRange,
     pub saved: bool,
 }
 
 impl Buffer {
-    pub fn blank() -> Self {
+    pub fn blank(path: PathBuf) -> Self {
         Buffer {
-            path: None,
+            path,
             content: String::new(),
             cursor: TextRange::default(),
             saved: false,
         }
+    }
+
+    pub fn open(path: PathBuf) -> Result<Buffer, BufferError> {
+        if !path.exists() {
+            return Ok(Self::blank(path));
+        }
+        Self::read(path)
+    }
+
+    pub fn read(path: PathBuf) -> Result<Buffer, BufferError> {
+        let mut buffer = String::new();
+        let mut file = File::open(&path)?;
+        file.read_to_string(&mut buffer)?;
+
+        Ok(Buffer {
+            path,
+            content: buffer,
+            cursor: TextRange::default(),
+            saved: true,
+        })
     }
 }
 
@@ -29,17 +49,4 @@ pub enum BufferError {
         #[from]
         io: std::io::Error,
     },
-}
-
-pub fn read_buffer(path: PathBuf) -> Result<Buffer, BufferError> {
-    let mut buffer = String::new();
-    let mut file = File::open(&path)?;
-    file.read_to_string(&mut buffer);
-
-    Ok(Buffer {
-        path: Some(path),
-        content: buffer,
-        cursor: TextRange::default(),
-        saved: true,
-    })
 }

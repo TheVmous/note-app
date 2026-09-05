@@ -1,6 +1,4 @@
-use std::path::PathBuf;
-
-use crate::buffer::{Buffer, read_buffer};
+use crate::buffer::Buffer;
 
 #[derive(Default, Clone)]
 pub struct Editor {
@@ -8,11 +6,6 @@ pub struct Editor {
 }
 
 impl Editor {
-    pub fn open_path(&mut self, path: PathBuf) {
-        let buffer = read_buffer(path);
-        
-    }
-
     pub fn open_buffer(&mut self, buffer: Buffer) {
         self.open_buffer = Some(buffer);
     }
