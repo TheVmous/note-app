@@ -1,13 +1,9 @@
 use dioxus::prelude::*;
 
-use crate::Editor;
-
-pub fn open_editor(editor: Editor) {
-    LaunchBuilder::new().with_context(editor).launch(App);
-}
+use crate::editor::Editor;
 
 #[component]
-fn App() -> Element {
+pub fn Buffer() -> Element {
     let initial = use_context::<Editor>();
     let mut editor = use_signal(|| initial);
 

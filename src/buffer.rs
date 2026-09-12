@@ -3,7 +3,7 @@ use std::{fs::File, io::Read, path::PathBuf};
 use text_size::TextRange;
 use thiserror::Error;
 
-#[derive(Default, Clone)]
+#[derive(Default, Clone, Debug)]
 pub struct Buffer {
     pub path: PathBuf,
     pub content: String,
