@@ -7,6 +7,7 @@ use thiserror::Error;
 pub struct Buffer {
     pub path: PathBuf,
     pub content: String,
+    pub saved_content: Option<String>,
     pub cursor: TextRange,
     pub saved: bool,
 }
@@ -17,6 +18,7 @@ impl Buffer {
             path,
             content: String::new(),
             cursor: TextRange::default(),
+            saved_content: None,
             saved: false,
         }
     }
@@ -35,6 +37,7 @@ impl Buffer {
 
         Ok(Buffer {
             path,
+            saved_content: Some(buffer.clone()),
             content: buffer,
             cursor: TextRange::default(),
             saved: true,
