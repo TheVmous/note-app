@@ -4,6 +4,7 @@ use crate::{buffer::Buffer, config::read_config, editor::Editor, ui::open_editor
 
 pub mod buffer;
 pub mod cli;
+pub mod cmd;
 pub mod config;
 pub mod editor;
 pub mod ui;
@@ -21,8 +22,8 @@ Arrow Keys/Helix Motions - Move around.";
 
 fn main() {
     let options = cli::get_options();
-    let mut editor = Editor::default();
     let config = read_config();
+    let mut editor = Editor::new(config.unwrap());
     if let Some(buffer) = options.file {
         let buffer = Buffer::open(buffer.into()).expect("couldnt open buffer");
         editor.open_buffer(buffer);

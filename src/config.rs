@@ -7,21 +7,18 @@ use std::print;
 
 // TODO: add 'separate structs' for like packages style stuff
 
-
-
-
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Config {
     pub visuals: VisualConfigs,
     pub syst: SystConfigs,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct SystConfigs {
     pub default_ext: String,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct VisualConfigs {
     pub font_size: f32,
     pub tab_len: i32,
@@ -54,8 +51,6 @@ impl Default for Config {
         }
     }
 }
-
-
 
 pub fn read_config() -> Result<Config> {
     let path = Path::new("config.toml");

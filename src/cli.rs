@@ -11,3 +11,4 @@ pub fn get_options() -> ArgOptions {
     let result: ArgOptions = ArgOptions { file };
     result
 }
+
