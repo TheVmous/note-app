@@ -1,6 +1,6 @@
 #![allow(non_snake_case)]
 
-use crate::{config::read_config, editor::Editor, ui::open_editor};
+use crate::{buffer::Buffer, config::read_config, editor::Editor, ui::open_editor};
 
 pub mod buffer;
 pub mod cli;
@@ -21,9 +21,11 @@ Arrow Keys/Helix Motions - Move around.";
 
 fn main() {
     let options = cli::get_options();
-    let editor = Editor::default();
+    let mut editor = Editor::default();
     let config = read_config();
-    // if let Some(buffer) = options.file {
-    // }
+    if let Some(buffer) = options.file {
+        let buffer = Buffer::open(buffer.into()).expect("couldnt open buffer");
+        editor.open_buffer(buffer);
+    }
     open_editor(editor);
 }
