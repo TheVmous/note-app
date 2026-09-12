@@ -4,7 +4,9 @@ use std::fs::File;
 use std::io::Write;
 use std::path::Path;
 
-//TODO: add 'separate structs' for like packages style stuff
+// TODO: add 'separate structs' for like packages style stuff
+
+
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct VisualConfigs {
@@ -29,6 +31,8 @@ impl Default for Config {
         }
     }
 }
+
+
 
 pub fn read_config() -> Result<Config> {
     let path = Path::new("config.toml");
