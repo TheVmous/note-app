@@ -14,6 +14,8 @@
 - [ ] Extensions
 - [ ] Syntax highlighting
 - ...
+- add task and calendar functionality (incl alloc time to do task in calendar)
+  - can assoc notes w calendar events/task allocs: like click 9/2 lecture and access those notes!
 
 ## themes
 
