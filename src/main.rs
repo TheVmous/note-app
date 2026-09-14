@@ -9,24 +9,14 @@ pub mod config;
 pub mod editor;
 pub mod ui;
 
-const CHEATSHEET: &str = "Quick Keybinds:
-
-q - Quit.
-w - Save changes.
-a - Add task.
-x - Save and Quit.
-u - Undo action.
-U - Redo action.
-H - Toggle cheatsheet.
-Arrow Keys/Helix Motions - Move around.";
-
 fn main() {
     let options = cli::get_options();
-    let config = read_config();
-    let mut editor = Editor::new(config.unwrap());
-    if let Some(buffer) = options.file {
-        let buffer = Buffer::open(buffer.into()).expect("couldnt open buffer");
-        editor.open_buffer(buffer);
-    }
+    let config = read_config().expect("couldnt read config");
+    let buffer = match options.file {
+        Some(path) => Buffer::open(path.into()).expect("couldnt open buffer"),
+        None => Buffer::blank(format!("untitled{}", config.syst.default_ext).into()),
+    };
+    let mut editor = Editor::new(config);
+    editor.open_buffer(buffer);
     open_editor(editor);
 }

@@ -22,3 +22,16 @@
 
 ##cli flag ideas
 -
+
+## commands
+
+Quick Keybinds:
+
+q - Quit.
+w - Save changes.
+a - Add task.
+x - Save and Quit.
+u - Undo action.
+U - Redo action.
+H - Toggle cheatsheet.
+Arrow Keys/Helix Motions - Move around.

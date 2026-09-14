@@ -1,13 +1,11 @@
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
-use std::fs::File;
-use std::io::Write;
-use std::path::Path;
-use std::print;
+#[cfg(not(target_family = "wasm"))]
+use std::{fs::File, io::Write, path::Path};
 
 // TODO: add 'separate structs' for like packages style stuff
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, Default)]
 pub struct Config {
     pub visuals: VisualConfigs,
     pub syst: SystConfigs,
@@ -43,15 +41,13 @@ impl Default for SystConfigs {
     }
 }
 
-impl Default for Config {
-    fn default() -> Self {
-        Self {
-            visuals: VisualConfigs::default(),
-            syst: SystConfigs::default(),
-        }
-    }
+/// The browser has no filesystem, so the web build runs on defaults.
+#[cfg(target_family = "wasm")]
+pub fn read_config() -> Result<Config> {
+    Ok(Config::default())
 }
 
+#[cfg(not(target_family = "wasm"))]
 pub fn read_config() -> Result<Config> {
     let path = Path::new("config.toml");
     if !path.exists() {

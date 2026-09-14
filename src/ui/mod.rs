@@ -10,5 +10,17 @@ pub fn open_editor(editor: Editor) {
 
 #[component]
 fn App() -> Element {
-    buffer::Buffer()
+    rsx! {
+        div {
+            tabindex: 0,
+            autofocus: true,
+            style: "width: 100vw; height: 100vh; outline: none;",
+
+            onkeydown: move |evt| {
+                println!("Pressed {}", evt.data.key())
+            },
+
+            {buffer::Buffer()}
+        }
+    }
 }
