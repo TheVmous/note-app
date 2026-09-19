@@ -19,6 +19,16 @@ pub fn Buffer() -> Element {
         if !buffer.saved {
             p { "This is not saved" }
         }
+
+        button {
+            onclick: move |_| {
+                let mut editor = editor.write();
+                let buffer = editor.open_buffer.as_mut().unwrap();
+                buffer.save();
+            },
+            "save",
+        }
+
         textarea {
             font_size: "{font_size}px",
             value: buffer.content,
