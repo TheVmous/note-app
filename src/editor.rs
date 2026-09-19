@@ -40,14 +40,6 @@ impl Editor {
         }
     }
 
-    pub async fn get_focused_screen(&self) -> Option<RwLockReadGuard<'_, Screen>> {
-        self.get_screen(self.focus?).await
-    }
-
-    pub async fn get_focused_screen_mut(&self) -> Option<RwLockMappedWriteGuard<'_, Screen>> {
-        self.get_screen_mut(self.focus?).await
-    }
-
     pub async fn get_screen(&self, screen_id: ScreenId) -> Option<RwLockReadGuard<'_, Screen>> {
         let screens_r = self.screens.read().await;
         RwLockReadGuard::try_map(screens_r, |m| m.get(&screen_id)).ok()
@@ -59,6 +51,21 @@ impl Editor {
     ) -> Option<RwLockMappedWriteGuard<'_, Screen>> {
         let screens_w = self.screens.write().await;
         RwLockWriteGuard::try_map(screens_w, |m| m.get_mut(&screen_id)).ok()
+    }
+
+    pub async fn get_focused_screen(&self) -> Option<RwLockReadGuard<'_, Screen>> {
+        let focus = self.focus?;
+        let screens_r = self.screens.read().await;
+        RwLockReadGuard::try_map(screens_r, |m| m.get(&focus)).ok()
+    }
+
+    pub async fn get_focused_screen_mut(
+        &mut self,
+        screen_id: ScreenId,
+    ) -> Option<RwLockMappedWriteGuard<'_, Screen>> {
+        let focus = self.focus?;
+        let screens_w = self.screens.write().await;
+        RwLockWriteGuard::try_map(screens_w, |m| m.get_mut(&focus)).ok()
     }
 
     pub async fn with_screen<R>(
@@ -77,6 +84,18 @@ impl Editor {
     ) -> Option<R> {
         let mut screens_w = self.screens.write().await;
         screens_w.get_mut(&screen_id).map(f)
+    }
+
+    pub async fn with_focused_screen<R>(&self, f: impl FnOnce(&Screen) -> R) -> Option<R> {
+        let focus = self.focus?;
+        let screens_r = self.screens.read().await;
+        screens_r.get(&focus).map(f)
+    }
+
+    pub async fn with_focused_screen_mut<R>(&self, f: impl FnOnce(&mut Screen) -> R) -> Option<R> {
+        let focus = self.focus?;
+        let mut screens_w = self.screens.write().await;
+        screens_w.get_mut(&focus).map(f)
     }
 
     pub async fn add_screen(&mut self, screen: Screen) -> ScreenId {

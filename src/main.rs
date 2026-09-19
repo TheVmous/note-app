@@ -23,6 +23,8 @@ fn main() {
         None => Note::blank(format!("untitled{}", config.syst.default_ext).into()),
     };
     let mut editor = Editor::new(config);
-    editor.open_note(note, true);
+    tokio::runtime::Runtime::new()
+        .expect("tokio runtime")
+        .block_on(editor.open_note(note, true));
     open_editor(editor);
 }
