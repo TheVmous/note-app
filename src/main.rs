@@ -36,8 +36,19 @@ fn main() {
 
 pub async fn reload_editor(editor: &mut Editor) {
     load_themes(editor).await;
+    if let Some(theme) = editor.config.visuals.theme.clone()
+        && let Err(e) = editor.set_theme(theme)
+    {
+        println!("{e}");
+    }
 }
 
+#[cfg(target_family = "wasm")]
+pub async fn load_themes(editor: &mut Editor) -> anyhow::Result<()> {
+    Ok(())
+}
+
+#[cfg(not(target_family = "wasm"))]
 pub async fn load_themes(editor: &mut Editor) -> anyhow::Result<()> {
     let themes_dir = themes_dir();
     println!("reading themes {}", themes_dir.display());

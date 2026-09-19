@@ -1,6 +1,7 @@
 [visuals]
 font_size = 40.0
 tab_len = 4
+theme = "marginalia"
 
 [syst]
 default_ext = ".md"

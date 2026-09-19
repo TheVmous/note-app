@@ -23,6 +23,8 @@ pub trait BufferOps {
     fn content(&self) -> Arc<str>;
     fn set_content(&mut self, content: Arc<str>);
     fn is_saved(&self) -> bool;
+    fn cursor(&self) -> TextRange;
+    fn set_cursor(&mut self, cursor: TextRange);
     fn save(&mut self) -> Result<(), BufferError>;
     fn set_mode(&mut self, mode: Mode) -> bool;
     fn get_mode(&self) -> Mode;
@@ -106,6 +108,14 @@ impl BufferOps for Note {
 
     fn set_content(&mut self, content: Arc<str>) {
         self.content = content;
+    }
+
+    fn cursor(&self) -> TextRange {
+        self.cursor
+    }
+
+    fn set_cursor(&mut self, cursor: TextRange) {
+        self.cursor = cursor
     }
 
     fn set_mode(&mut self, mode: Mode) -> bool {

@@ -20,6 +20,8 @@ pub struct SystConfigs {
 pub struct VisualConfigs {
     pub font_size: f32,
     pub tab_len: i32,
+    #[serde(default)]
+    pub theme: Option<String>,
 }
 
 /* end config structs */
@@ -29,6 +31,7 @@ impl Default for VisualConfigs {
         Self {
             font_size: 12.0,
             tab_len: 4,
+            theme: None,
         }
     }
 }
