@@ -1,10 +1,4 @@
-use std::path::PathBuf;
-
 use serde::Deserialize;
-use tokio::fs::File;
-use tokio::io::AsyncReadExt;
-use tokio_stream::StreamExt;
-use tokio_tar::Archive;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Theme {
@@ -33,7 +27,13 @@ impl Theme {
     }
 }
 
-pub async fn parse_theme(path: PathBuf) -> anyhow::Result<Theme> {
+#[cfg(not(target_family = "wasm"))]
+pub async fn parse_theme(path: std::path::PathBuf) -> anyhow::Result<Theme> {
+    use tokio::fs::File;
+    use tokio::io::AsyncReadExt;
+    use tokio_stream::StreamExt;
+    use tokio_tar::Archive;
+
     let file = File::open(path).await?;
     let mut archive = Archive::new(file);
 

@@ -7,7 +7,6 @@ use std::{
 };
 
 use enum_dispatch::enum_dispatch;
-use strum::EnumString;
 use text_size::TextRange;
 use thiserror::Error;
 

@@ -1,9 +1,6 @@
 #![allow(non_snake_case)]
 
-use crate::{
-    buffer::Note, cli::ArgOptions, config::read_config, editor::Editor, fs::themes_dir,
-    ui::open_editor,
-};
+use crate::{buffer::Note, cli::ArgOptions, config::read_config, editor::Editor, ui::open_editor};
 
 pub mod buffer;
 pub mod cli;
@@ -24,9 +21,20 @@ fn main() {
         .init();
 
     let mut editor = Editor::new(config);
-    let runtime = tokio::runtime::Runtime::new().expect("tokio runtime");
-    runtime.block_on(load_editor(options, &mut editor));
+    block_on(load_editor(options, &mut editor));
     open_editor(editor);
+}
+
+#[cfg(not(target_family = "wasm"))]
+fn block_on<F: std::future::Future>(fut: F) -> F::Output {
+    tokio::runtime::Runtime::new()
+        .expect("tokio runtime")
+        .block_on(fut)
+}
+
+#[cfg(target_family = "wasm")]
+fn block_on<F: std::future::Future>(fut: F) -> F::Output {
+    pollster::block_on(fut)
 }
 
 pub async fn load_editor(options: ArgOptions, editor: &mut Editor) {
@@ -50,13 +58,13 @@ pub async fn reload_editor(editor: &mut Editor) {
 }
 
 #[cfg(target_family = "wasm")]
-pub async fn load_themes(editor: &mut Editor) -> anyhow::Result<()> {
+pub async fn load_themes(_editor: &mut Editor) -> anyhow::Result<()> {
     Ok(())
 }
 
 #[cfg(not(target_family = "wasm"))]
 pub async fn load_themes(editor: &mut Editor) -> anyhow::Result<()> {
-    let themes_dir = themes_dir();
+    let themes_dir = crate::fs::themes_dir();
     let mut read = tokio::fs::read_dir(themes_dir).await?;
 
     while let Ok(Some(entry)) = read.next_entry().await {

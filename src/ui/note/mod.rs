@@ -32,7 +32,6 @@ pub fn Buffer() -> Element {
         .parent()
         .filter(|p| !p.as_os_str().is_empty())
         .map(|p| format!("{}/", p.display()));
-    let full_path = note.path.display().to_string();
 
     let lines = note.content.lines().count().max(1);
     let words = note.content.split_whitespace().count();
