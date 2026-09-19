@@ -35,6 +35,16 @@ where
                     _ => true,
                 }
             }
+            Key::ArrowLeft => {
+                let mut buffer = self.write();
+                buffer.selection_mut().advance(-1);
+                false
+            }
+            Key::ArrowRight => {
+                let mut buffer = self.write();
+                buffer.selection_mut().advance(1);
+                false
+            }
             _ => true,
         }
     }
@@ -57,6 +67,12 @@ pub fn handle_input(mut buffer: Store<Buffer>, ev: Event<BeforeInputData>) {
             if matches!(dir, Direction::Backward) {
                 buffer.selection_mut().advance(-len);
             }
+        }
+        EditIntent::Newline => {
+            let mut buffer = buffer.write();
+            let newLine = "\n";
+            buffer.change(|c| (c.head, c.head, Some(newLine.to_string())));
+            buffer.selection_mut().advance(newLine.len() as isize);
         }
         o => {
             println!("unsupported event {o:?}");
