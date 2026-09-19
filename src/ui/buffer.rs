@@ -1,12 +1,10 @@
 use dioxus::prelude::*;
 
-use crate::{buffer::BufferError, editor::Editor};
-use thiserror::Error;
+use super::EditorCtx;
 
 #[component]
 pub fn Buffer() -> Element {
-    let initial = use_context::<Editor>();
-    let mut editor = use_signal(|| initial);
+    let mut editor = use_context::<EditorCtx>().core;
 
     let editor_read_guard = editor.read();
     let buffer = editor_read_guard

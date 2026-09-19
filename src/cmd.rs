@@ -8,4 +8,6 @@ enum Action {
     Exit,
 }
 
-pub fn evalCmd() {}
+pub fn eval_cmd() {
+    
+}

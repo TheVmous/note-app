@@ -6,6 +6,13 @@ pub struct Editor {
     pub config: Config,
 }
 
+#[derive(Clone)]
+pub enum Mode {
+    Normal,
+    Insert,
+    Select,
+}
+
 impl Editor {
     pub fn new(config: Config) -> Editor {
         Editor {
@@ -16,6 +23,10 @@ impl Editor {
 
     pub fn open_buffer(&mut self, buffer: Buffer) {
         self.open_buffer = Some(buffer);
+    }
+
+    pub fn set_mode(&mut self, mode: Mode) {
+        
     }
 
     pub fn close_buffer(&mut self) -> bool {
