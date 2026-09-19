@@ -1,4 +1,9 @@
-use std::{fs::File, io::Read, path::PathBuf};
+use std::{
+    fs::File,
+    io::{Read, Write},
+    path::PathBuf,
+    writeln,
+};
 
 use text_size::TextRange;
 use thiserror::Error;
@@ -42,6 +47,14 @@ impl Buffer {
             cursor: TextRange::default(),
             saved: true,
         })
+    }
+    //check for perms here via sm std or other function
+    pub fn save(&mut self) -> Result<(), BufferError> {
+        let mut file = File::open(&self.path)?;
+        writeln!(&mut file, "{}", self.content)?;
+        self.saved_content = Some(self.content.clone());
+        self.saved = true;
+        Ok(())
     }
 }
 
