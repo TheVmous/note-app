@@ -1,7 +1,11 @@
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
 #[cfg(not(target_family = "wasm"))]
-use std::{fs::File, io::Write, path::Path};
+use std::{
+    fs::File,
+    io::Write,
+    path::{Path, PathBuf},
+};
 
 // TODO: add 'separate structs' for like packages style stuff
 
@@ -44,24 +48,30 @@ impl Default for SystConfigs {
     }
 }
 
-/// The browser has no filesystem, so the web build runs on defaults.
 #[cfg(target_family = "wasm")]
 pub fn read_config() -> Result<Config> {
     Ok(Config::default())
 }
 
 #[cfg(not(target_family = "wasm"))]
+fn config_path() -> PathBuf {
+    let local = Path::new("config.toml");
+    if local.exists() {
+        return local.to_path_buf();
+    }
+    crate::fs::config_dir().join("config.toml")
+}
+
+#[cfg(not(target_family = "wasm"))]
 pub fn read_config() -> Result<Config> {
-    let path = Path::new("config.toml");
+    let path = config_path();
     if !path.exists() {
-        println!("no exist");
-        let mut file = File::create("config.toml")?;
+        let mut file = File::create(&path)?;
         let config = Config::default();
         write!(&mut file, "{}", toml::to_string_pretty(&config)?)?;
         return Ok(config);
     }
-    let content: String = std::fs::read_to_string("config.toml")?;
+    let content: String = std::fs::read_to_string(&path)?;
     let config: Config = toml::from_str(&content)?;
-    print!("{}", config.syst.default_ext);
     Ok(config)
 }
