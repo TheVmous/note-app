@@ -1,9 +1,7 @@
 pub mod keyboard;
 pub mod note;
 
-use crate::Buffer;
 use crate::Editor;
-use crate::screen::Screen;
 use dioxus::prelude::*;
 
 const GLOBAL_CSS: &str = include_str!("global.css");
@@ -23,7 +21,7 @@ fn App() -> Element {
     use_context_provider(|| EditorCtx {
         core: Signal::new(initial),
     });
-    let mut editor_ctx = use_context::<EditorCtx>(); //crashes
+    let editor_ctx = use_context::<EditorCtx>(); //crashes
 
     rsx! {
         document::Style { "{GLOBAL_CSS}" }

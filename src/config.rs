@@ -43,7 +43,7 @@ impl Default for VisualConfigs {
 impl Default for SystConfigs {
     fn default() -> Self {
         Self {
-            default_ext: String::from(".md"),
+            default_ext: String::from("md"),
         }
     }
 }

@@ -99,8 +99,8 @@ impl BufferOps for Note {
 
     fn save(&mut self) -> Result<(), BufferError> {
         let mut file = OpenOptions::new().write(true).open(&self.path)?;
-        writeln!(&mut file, "{}", self.content)?; //fails here
-        println!("{}", &self.path.display());
+        writeln!(&mut file, "{}", self.content)?;
+        tracing::debug!("Saved file `{}`", self.path.display());
         self.saved_content = Some(self.content.clone());
         self.saved = true;
         Ok(())
@@ -120,11 +120,11 @@ impl BufferOps for Note {
 
     fn set_mode(&mut self, mode: Mode) -> bool {
         self.mode = mode;
-        return true;
+        true
     }
 
     fn get_mode(&self) -> Mode {
-        return self.mode;
+        self.mode
     }
 }
 

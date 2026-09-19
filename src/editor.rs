@@ -57,7 +57,6 @@ impl Editor {
 
     pub async fn get_focused_screen_mut(
         &mut self,
-        screen_id: ScreenId,
     ) -> Option<RwLockMappedWriteGuard<'_, Screen>> {
         let focus = self.focus?;
         let screens_w = self.screens.write().await;

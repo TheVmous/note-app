@@ -1,5 +1,5 @@
 use crate::{
-    buffer::{Buffer, BufferOps, Mode},
+    buffer::{BufferOps, Mode},
     screen::Screen,
 };
 
@@ -21,23 +21,25 @@ impl EditorCtx {
                             note.set_mode(Mode::Normal);
                             println!("normal mode now!");
                         }
+                        false
                     }
                     Key::Character(char) => {
                         println!("{}", char);
-                        if mode == Mode::Normal {
-                            //how to block or retroactively delete?
-                            if char == "i" {
-                                note.set_mode(Mode::Insert);
-                                println!("insert mode now!");
-                                return false;
+                        match mode {
+                            Mode::Normal => {
+                                if char == "i" {
+                                    note.set_mode(Mode::Insert);
+                                    println!("insert mode now!");
+                                    return false;
+                                }
+                                println!("no insertion in Normal Mode!");
+                                false
                             }
-                            println!("no insertion in Normal Mode!");
-                            return false;
+                            _ => true,
                         }
                     }
-                    others => (),
+                    _ => true,
                 }
-                return true;
             })
             .await;
         match result {
