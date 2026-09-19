@@ -11,6 +11,7 @@ pub struct EditorCtx {
 }
 
 pub fn open_editor(editor: Editor) {
+    tracing::info!("Launching editor...");
     LaunchBuilder::new().with_context(editor).launch(App);
 }
 
@@ -21,7 +22,7 @@ fn App() -> Element {
     use_context_provider(|| EditorCtx {
         core: Signal::new(initial),
     });
-    let editor_ctx = use_context::<EditorCtx>(); //crashes
+    let mut editor_ctx = use_context::<EditorCtx>(); //crashes
 
     rsx! {
         document::Style { "{GLOBAL_CSS}" }

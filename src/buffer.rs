@@ -7,6 +7,7 @@ use std::{
 };
 
 use enum_dispatch::enum_dispatch;
+use strum::EnumString;
 use text_size::TextRange;
 use thiserror::Error;
 
@@ -30,7 +31,7 @@ pub trait BufferOps {
     fn get_mode(&self) -> Mode;
 }
 
-#[derive(Clone, Copy, Debug, Default, PartialEq)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, strum::Display)]
 pub enum Mode {
     #[default]
     Normal,

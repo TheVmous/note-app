@@ -17,6 +17,7 @@ toml = "1.1"
 thiserror = "2"
 enum_dispatch = "0.3"
 dirs = "7"
+strum = { version = "0.28", features = ["derive"] }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 

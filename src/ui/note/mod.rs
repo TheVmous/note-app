@@ -37,6 +37,7 @@ pub fn Buffer() -> Element {
     let lines = note.content.lines().count().max(1);
     let words = note.content.split_whitespace().count();
     let chars = note.content.chars().count();
+    let mode = note.mode.to_string().to_uppercase();
     let state = if note.saved { "saved" } else { "dirty" };
     let state_label = if note.saved { "Saved" } else { "Unsaved" };
 
@@ -90,7 +91,7 @@ pub fn Buffer() -> Element {
                     span { "{words} words" }
                     span { "{chars} chars" }
                 }
-                span { class: "path", "{full_path}" }
+                span { "{mode}" }
             }
         }
     }
