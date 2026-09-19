@@ -1,6 +1,7 @@
 use dioxus::prelude::*;
 
-use crate::editor::Editor;
+use crate::{buffer::BufferError, editor::Editor};
+use thiserror::Error;
 
 #[component]
 pub fn Buffer() -> Element {
@@ -18,13 +19,18 @@ pub fn Buffer() -> Element {
         h1 { "The Editor" }
         if !buffer.saved {
             p { "This is not saved" }
+        } else {
+            p { "Saved!" }
         }
 
         button {
             onclick: move |_| {
                 let mut editor = editor.write();
                 let buffer = editor.open_buffer.as_mut().unwrap();
-                buffer.save();
+                match buffer.save() {
+                    Ok(_) => println!("all good saving"),
+                    Err(e) => println!("{}", e),
+                }
             },
             "save",
         }

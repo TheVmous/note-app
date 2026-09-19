@@ -1,5 +1,5 @@
 use std::{
-    fs::File,
+    fs::{File, OpenOptions},
     io::{Read, Write},
     path::PathBuf,
     writeln,
@@ -50,8 +50,9 @@ impl Buffer {
     }
     //check for perms here via sm std or other function
     pub fn save(&mut self) -> Result<(), BufferError> {
-        let mut file = File::open(&self.path)?;
-        writeln!(&mut file, "{}", self.content)?;
+        let mut file = OpenOptions::new().write(true).open(&self.path)?;
+        writeln!(&mut file, "{}", self.content)?; //fails here
+        println!("{}", &self.path.display());
         self.saved_content = Some(self.content.clone());
         self.saved = true;
         Ok(())
