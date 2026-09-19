@@ -1,9 +1,10 @@
 # Roadmap
 
 - [ ] Config file @TheVmous
-  - [ ] font size
-  - [ ] tab length
-  - [ ] telemetry
+  - [x] font size
+  - [ ] saving
+  - [ ] tab length //later
+  - [ ] telemetry //later
   - [ ] default file extension (i.e .txt .md etc.)
   - ...
 - [ ] Buffers @SrGaabriel
