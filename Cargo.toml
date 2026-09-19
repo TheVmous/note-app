@@ -12,6 +12,7 @@ text-size = "1.1.1"
 serde = { version = "1.0", features = ["derive"] }
 toml = "1.1.6+spec-1.1.0"
 thiserror = "2"
+enum_dispatch = "0.3"
 
 [features]
 default = ["desktop"]

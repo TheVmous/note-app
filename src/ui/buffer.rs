@@ -35,12 +35,13 @@ pub fn Buffer() -> Element {
 
         textarea {
             font_size: "{font_size}px",
-            value: buffer.content,
+            value: buffer.buffer,
             oninput: move |ev| {
                 let mut editor = editor.write();
+                let open_note = editor.open_note(note, focus)
                 if let Some(buffer) = editor.open_buffer.as_mut() {
-                    buffer.content = ev.value();
-                    buffer.saved = buffer.saved_content.as_ref().is_some_and(|c| c == &buffer.content);
+                    buffer.buffer = ev.value();
+                    buffer.saved = buffer.saved_content.as_ref().is_some_and(|c| c == &buffer.buffer);
                 }
             }
         }
