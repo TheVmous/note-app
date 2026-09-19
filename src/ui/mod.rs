@@ -1,9 +1,11 @@
-pub mod buffer;
 pub mod keyboard;
+pub mod note;
 
 use dioxus::prelude::*;
 
-use crate::{Editor};
+use crate::Editor;
+
+const GLOBAL_CSS: &str = include_str!("global.css");
 
 #[derive(Clone, Copy)]
 pub struct EditorCtx {
@@ -22,16 +24,36 @@ fn App() -> Element {
     });
 
     rsx! {
+        document::Style { "{GLOBAL_CSS}" }
+        ThemeStyle {}
+
         div {
+            class: "app",
             tabindex: 0,
             autofocus: true,
-            style: "width: 100vw; height: 100vh; outline: none;",
 
             onkeydown: move |evt| {
                 println!("Pressed {}", evt.data.key())
             },
 
-            {buffer::Buffer()}
+            note::Buffer {}
+        }
+    }
+}
+
+#[component]
+fn ThemeStyle() -> Element {
+    let editor = use_context::<EditorCtx>().core;
+    let css = use_memo(move || {
+        editor
+            .read()
+            .active_theme()
+            .map(|theme| theme.css().to_owned())
+    });
+
+    rsx! {
+        if let Some(css) = css() {
+            style { "{css}" }
         }
     }
 }

@@ -4,14 +4,17 @@ use anyhow::bail;
 use tokio::sync::{RwLock, RwLockMappedWriteGuard, RwLockReadGuard, RwLockWriteGuard};
 
 use crate::{
-    buffer::{Buffer, Note},
+    buffer::Note,
     config::Config,
     screen::{Screen, ScreenId},
+    themes::Theme,
 };
 
 #[derive(Default, Clone)]
 pub struct Editor {
     pub config: Config,
+    pub themes: Vec<Theme>,
+    theme_id: Option<String>,
     screens: Arc<RwLock<HashMap<ScreenId, Screen>>>,
     focus: Option<ScreenId>,
     next_id: u64,
@@ -117,4 +120,22 @@ impl Editor {
     }
 
     pub fn set_mode(&mut self, mode: Mode) {}
+
+    pub fn active_theme(&self) -> Option<&Theme> {
+        let id = self.theme_id.as_deref()?;
+        self.themes.iter().find(|t| t.id() == id)
+    }
+
+    pub fn set_theme(&mut self, theme_id: impl Into<String>) -> anyhow::Result<()> {
+        let theme_id = theme_id.into();
+        if !self.themes.iter().any(|t| t.id() == theme_id) {
+            bail!("Theme `{theme_id}` not loaded");
+        }
+        self.theme_id = Some(theme_id);
+        Ok(())
+    }
+
+    pub fn clear_theme(&mut self) {
+        self.theme_id = None;
+    }
 }

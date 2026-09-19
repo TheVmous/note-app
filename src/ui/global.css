@@ -1,0 +1,81 @@
+:root {
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.app {
+    width: 100vw;
+    height: 100vh;
+    outline: none;
+}
+
+/* ---- note screen ---- */
+
+.note {
+    --note-font-size: 16px;
+
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+}
+
+.note-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.note-title {
+}
+
+.note-actions {
+}
+
+.note-state {
+}
+
+.note-save {
+}
+
+.note-body {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+}
+
+.note-editor {
+    flex: 1;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    border: none;
+    outline: none;
+    resize: none;
+    font-size: var(--note-font-size);
+}
+
+.note-status {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.note-empty {
+    width: 100%;
+    height: 100%;
+}
