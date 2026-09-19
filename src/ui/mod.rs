@@ -19,9 +19,12 @@ pub fn open_editor(editor: Editor) {
 #[component]
 fn App() -> Element {
     let initial = use_context::<Editor>();
+    println!("here");
+
     use_context_provider(|| EditorCtx {
         core: Signal::new(initial),
     });
+    let mut editor_ctx = use_context::<EditorCtx>(); //crashes
 
     rsx! {
         document::Style { "{GLOBAL_CSS}" }
@@ -33,7 +36,8 @@ fn App() -> Element {
             autofocus: true,
 
             onkeydown: move |evt| {
-                println!("Pressed {}", evt.data.key())
+                editor_ctx.handle_key(evt.data.key());
+                println!("Pressed {}", evt.data.key());
             },
 
             note::Buffer {}

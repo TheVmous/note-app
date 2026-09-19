@@ -2,7 +2,7 @@
 
 - [ ] Config file @TheVmous
   - [x] font size
-  - [ ] saving
+  - [x] saving //will do auto save later
   - [ ] tab length //later
   - [ ] telemetry //later
   - [ ] default file extension (i.e .txt .md etc.)

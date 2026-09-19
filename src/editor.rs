@@ -119,7 +119,9 @@ impl Editor {
         Ok(())
     }
 
-    pub fn set_mode(&mut self, mode: Mode) {}
+    pub fn set_mode(&mut self, mode: Mode) {
+        // self.mode = mode;
+    }
 
     pub fn active_theme(&self) -> Option<&Theme> {
         let id = self.theme_id.as_deref()?;

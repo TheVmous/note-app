@@ -1,22 +1,21 @@
-use dioxus::prelude::*;
 use super::EditorCtx;
+use dioxus::prelude::*;
 
-#[derive(Clone, PartialEq, Debug)]
-pub enum KeyPress {
-    Char(char),
-    Enter,
-    Esc,
-    Backspace,
-    
-}
+// #[derive(Clone, PartialEq, Debug)]
+// pub enum KeyPress {
+//     Char(char),
+//     Enter,
+//     Esc,
+//     Backspace,
+// }
 
 impl EditorCtx {
-    fn handle_key(mut self, key: KeyPress) {
-        let editor = self.core.write();
+    pub fn handle_key(mut self, key: Key) {
+        // let editor = self.core.write();
         match key {
-            KeyPress::Esc => {
-            }
-            _ => ()
+            Key::Character(char) => println!("{}", char),
+            // Key::Escape() => 
+            others => (),
         }
     }
 }
