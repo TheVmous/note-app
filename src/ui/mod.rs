@@ -1,12 +1,12 @@
 pub mod keyboard;
 pub mod note;
 
+use crate::Buffer;
+use crate::Editor;
+use crate::screen::Screen;
 use dioxus::prelude::*;
 
-use crate::Editor;
-
 const GLOBAL_CSS: &str = include_str!("global.css");
-
 #[derive(Clone, Copy)]
 pub struct EditorCtx {
     core: Signal<Editor>,
@@ -19,7 +19,6 @@ pub fn open_editor(editor: Editor) {
 #[component]
 fn App() -> Element {
     let initial = use_context::<Editor>();
-    println!("here");
 
     use_context_provider(|| EditorCtx {
         core: Signal::new(initial),
@@ -35,9 +34,10 @@ fn App() -> Element {
             tabindex: 0,
             autofocus: true,
 
-            onkeydown: move |evt| {
-                editor_ctx.handle_key(evt.data.key());
-                println!("Pressed {}", evt.data.key());
+            onkeydown: move |evt| async move {
+                if !editor_ctx.handle_key(evt.data.key()).await {
+                    evt.prevent_default();
+                }
             },
 
             note::Buffer {}

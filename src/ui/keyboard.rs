@@ -1,21 +1,51 @@
+use crate::{
+    buffer::{Buffer, BufferOps, Mode},
+    screen::Screen,
+};
+
 use super::EditorCtx;
 use dioxus::prelude::*;
 
-// #[derive(Clone, PartialEq, Debug)]
-// pub enum KeyPress {
-//     Char(char),
-//     Enter,
-//     Esc,
-//     Backspace,
-// }
-
 impl EditorCtx {
-    pub fn handle_key(mut self, key: Key) {
-        // let editor = self.core.write();
-        match key {
-            Key::Character(char) => println!("{}", char),
-            // Key::Escape() => 
-            others => (),
+    pub async fn handle_key(&self, key: Key) -> bool {
+        let result = self
+            .core
+            .peek()
+            .clone()
+            .with_focused_screen_mut(|Screen::Note(note)| {
+                let mode = note.get_mode();
+                println!("Mode: {mode:?}");
+                match key {
+                    Key::Escape => {
+                        if mode == Mode::Insert {
+                            note.set_mode(Mode::Normal);
+                            println!("normal mode now!");
+                        }
+                    }
+                    Key::Character(char) => {
+                        println!("{}", char);
+                        if mode == Mode::Normal {
+                            //how to block or retroactively delete?
+                            if char == "i" {
+                                note.set_mode(Mode::Insert);
+                                println!("insert mode now!");
+                                return false;
+                            }
+                            println!("no insertion in Normal Mode!");
+                            return false;
+                        }
+                    }
+                    others => (),
+                }
+                return true;
+            })
+            .await;
+        match result {
+            None => {
+                println!("Not an applicable screen!");
+                false
+            }
+            Some(result) => result,
         }
     }
 }

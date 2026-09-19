@@ -24,6 +24,16 @@ pub trait BufferOps {
     fn set_content(&mut self, content: Arc<str>);
     fn is_saved(&self) -> bool;
     fn save(&mut self) -> Result<(), BufferError>;
+    fn set_mode(&mut self, mode: Mode) -> bool;
+    fn get_mode(&self) -> Mode;
+}
+
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
+pub enum Mode {
+    #[default]
+    Normal,
+    Insert,
+    Select,
 }
 
 #[derive(Default, Clone, Debug)]
@@ -33,6 +43,7 @@ pub struct Note {
     pub saved_content: Option<Arc<str>>,
     pub cursor: TextRange,
     pub saved: bool,
+    pub mode: Mode,
 }
 
 impl Note {
@@ -43,6 +54,7 @@ impl Note {
             cursor: TextRange::default(),
             saved_content: None,
             saved: false,
+            mode: Mode::default(),
         }
     }
 
@@ -65,6 +77,7 @@ impl Note {
             content,
             cursor: TextRange::default(),
             saved: true,
+            mode: Mode::default(),
         })
     }
 }
@@ -93,6 +106,15 @@ impl BufferOps for Note {
 
     fn set_content(&mut self, content: Arc<str>) {
         self.content = content;
+    }
+
+    fn set_mode(&mut self, mode: Mode) -> bool {
+        self.mode = mode;
+        return true;
+    }
+
+    fn get_mode(&self) -> Mode {
+        return self.mode;
     }
 }
 

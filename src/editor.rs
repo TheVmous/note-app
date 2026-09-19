@@ -20,13 +20,6 @@ pub struct Editor {
     next_id: u64,
 }
 
-#[derive(Clone)]
-pub enum Mode {
-    Normal,
-    Insert,
-    Select,
-}
-
 impl Editor {
     pub fn new(config: Config) -> Editor {
         Editor {
@@ -117,10 +110,6 @@ impl Editor {
         self.focus = Some(screen_id);
 
         Ok(())
-    }
-
-    pub fn set_mode(&mut self, mode: Mode) {
-        // self.mode = mode;
     }
 
     pub fn active_theme(&self) -> Option<&Theme> {
