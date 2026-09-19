@@ -1,7 +1,7 @@
 use std::{collections::HashMap, sync::Arc};
 
 use anyhow::bail;
-use tokio::sync::RwLock;
+use tokio::sync::{RwLock, RwLockMappedWriteGuard, RwLockReadGuard, RwLockWriteGuard};
 
 use crate::{
     buffer::{Buffer, Note},
@@ -40,9 +40,43 @@ impl Editor {
         }
     }
 
-    pub async fn get_screen(&self, screen_id: ScreenId) -> Option<&Screen> {
+    pub async fn get_focused_screen(&self) -> Option<RwLockReadGuard<'_, Screen>> {
+        self.get_screen(self.focus?).await
+    }
+
+    pub async fn get_focused_screen_mut(&self) -> Option<RwLockMappedWriteGuard<'_, Screen>> {
+        self.get_screen_mut(self.focus?).await
+    }
+
+    pub async fn get_screen(&self, screen_id: ScreenId) -> Option<RwLockReadGuard<'_, Screen>> {
         let screens_r = self.screens.read().await;
-        screens_r.get(&screen_id)
+        RwLockReadGuard::try_map(screens_r, |m| m.get(&screen_id)).ok()
+    }
+
+    pub async fn get_screen_mut(
+        &self,
+        screen_id: ScreenId,
+    ) -> Option<RwLockMappedWriteGuard<'_, Screen>> {
+        let screens_w = self.screens.write().await;
+        RwLockWriteGuard::try_map(screens_w, |m| m.get_mut(&screen_id)).ok()
+    }
+
+    pub async fn with_screen<R>(
+        &self,
+        screen_id: ScreenId,
+        f: impl FnOnce(&Screen) -> R,
+    ) -> Option<R> {
+        let screens_r = self.screens.read().await;
+        screens_r.get(&screen_id).map(f)
+    }
+
+    pub async fn with_screen_mut<R>(
+        &self,
+        screen_id: ScreenId,
+        f: impl FnOnce(&mut Screen) -> R,
+    ) -> Option<R> {
+        let mut screens_w = self.screens.write().await;
+        screens_w.get_mut(&screen_id).map(f)
     }
 
     pub async fn add_screen(&mut self, screen: Screen) -> ScreenId {

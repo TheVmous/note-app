@@ -11,6 +11,7 @@ pub trait ScreenOps {
 }
 
 #[enum_dispatch(ScreenOps)]
+#[derive(Clone)]
 pub enum Screen {
     Note(Note),
 }
