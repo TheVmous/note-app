@@ -1,4 +1,5 @@
 pub mod keyboard;
+pub mod engine;
 pub mod note;
 
 use crate::Editor;
