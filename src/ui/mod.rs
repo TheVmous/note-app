@@ -13,7 +13,24 @@ pub struct EditorCtx {
 
 pub fn open_editor(editor: Editor) {
     tracing::info!("Launching editor...");
-    LaunchBuilder::new().with_context(editor).launch(App);
+    let builder = LaunchBuilder::new().with_context(editor);
+
+    #[cfg(all(feature = "desktop", target_os = "linux"))]
+    let builder = {
+        use dioxus::desktop::{Config, WindowBuilder};
+        let wayland = std::env::var_os("WAYLAND_DISPLAY").is_some();
+        builder.with_cfg(
+            Config::new()
+                .with_window(
+                    WindowBuilder::new()
+                        .with_title("editor")
+                        .with_decorations(!wayland),
+                )
+                .with_menu(None),
+        )
+    };
+
+    builder.launch(App);
 }
 
 #[component]
