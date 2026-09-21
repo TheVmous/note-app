@@ -1,14 +1,14 @@
 use std::{fmt::Display, io::Write};
 
 use ropey::{Rope, iter::Lines};
-use text_size::TextRange;
+use text_size::{TextRange, TextSize};
 
 use crate::Result;
 
 #[derive(Default, Clone, Debug)]
 pub struct Buffer {
     text: Rope,
-    cursor: TextRange,
+    pub cursor: TextRange,
 }
 
 impl Buffer {
@@ -33,6 +33,12 @@ impl Buffer {
 
     pub fn content_equals(&self, t: impl Into<String>) -> bool {
         self.to_string() == t.into()
+    }
+
+    pub fn set_cursor_to(&mut self, line: usize, col: usize) {
+        let line_start_char = self.text.line_to_char(line);
+        let char_idx = line_start_char + col;
+        self.cursor = TextRange::empty(TextSize::new(char_idx as u32));
     }
 
     pub fn num_words(&self) -> usize {
