@@ -92,8 +92,24 @@ body {
     height: 100%;
     background: burlywood;
     cursor: text;
+    font-family: ui-monospace, monospace;
+    font-size: var(--note-font-size);
+    white-space: pre;
+    tab-size: 4;
+    user-select: none;
 }
 
 .engine-line {
-    min-height: 20px;
+    min-height: var(--note-font-size);
+    text-wrap: pretty;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+}
+
+.engine-line:nth-child(even) {
+    background-color: lightsalmon;
+}
+
+.deco-selection {
+    background-color: lavender !important;
 }

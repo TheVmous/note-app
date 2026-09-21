@@ -10,15 +10,21 @@ function hitTest(x, y) {
     if (!node) return null;
 
     const el = node.nodeType === Node.TEXT_NODE ? node.parentElement : node;
-    const line = el.closest('[data-line]');
-    const clicked = document.elementFromPoint(x, y)?.closest('.engine-model');
-    if (!line || !clicked || !clicked.contains(line)) return null;
+    const target = el.closest('[data-start]');
+    const model = document.elementFromPoint(x, y)?.closest('.engine-model');
+    if (!target || !model || !model.contains(target)) return null;
 
-    let col;
-    if (node.nodeType === Node.TEXT_NODE) {
-        col = Array.from(node.textContent.slice(0, offset)).length;
-    } else {
-        col = offset > 0 ? Array.from(line.textContent).length : 0;
+    const start = Number(target.dataset.start);
+
+    // clicked the line itself: an empty line, or past the end of the text
+    if (target.classList.contains('engine-line')) {
+        return offset > 0 ? Number(target.dataset.end) : start;
     }
-    return [Number(line.dataset.line), col];
+    // the virtual end-of-line selection block has no real text
+    if (target.classList.contains('eol') || node.nodeType !== Node.TEXT_NODE) {
+        return start;
+    }
+    // token span: its start plus the UTF-8 length of the text before the caret
+    const before = node.textContent.slice(0, offset);
+    return start + new TextEncoder().encode(before).length;
 }

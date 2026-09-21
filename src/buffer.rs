@@ -44,6 +44,11 @@ impl Buffer {
         &mut self.selection
     }
 
+    pub fn index_of(&self, line: usize, col: usize) -> usize {
+        let offset = self.text.line_to_char(line);
+        offset + col
+    }
+
     pub fn num_words(&self) -> usize {
         let mut count = 0;
         let mut in_word = false;

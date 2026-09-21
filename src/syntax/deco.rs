@@ -1,16 +1,10 @@
 use text_size::TextRange;
 
+use crate::syntax::{Line, Piece};
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Style {
-    Red,
-}
-
-impl Style {
-    pub fn class(self) -> &'static str {
-        match self {
-            Style::Red => "deco-red",
-        }
-    }
+    Selection,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -35,10 +29,6 @@ impl Decorations {
         &self.items
     }
 
-    pub fn highlight_red(&mut self, start: u32, end: u32) {
-        self.add(TextRange::new(start.into(), end.into()), Style::Red);
-    }
-
     pub fn clear(&mut self, style: Style) {
         self.items.retain(|d| d.style != style);
     }
@@ -60,4 +50,50 @@ impl Decorations {
         }
         self.items.retain(|d| !d.range.is_empty());
     }
+}
+
+pub fn decorate(lines: &[Line], decos: &Decorations) -> Vec<Line> {
+    lines
+        .iter()
+        .map(|line| Line {
+            start: line.start,
+            end: line.end,
+            pieces: line
+                .pieces
+                .iter()
+                .flat_map(|p| split_piece(p, decos))
+                .collect(),
+        })
+        .collect()
+}
+
+fn split_piece(p: &Piece, decos: &Decorations) -> Vec<Piece> {
+    let end = p.start + p.text.len() as u32;
+    let mut cuts = vec![p.start, end];
+    for d in &decos.items {
+        for b in [u32::from(d.range.start()), u32::from(d.range.end())] {
+            if b > p.start && b < end && p.text.is_char_boundary((b - p.start) as usize) {
+                cuts.push(b);
+            }
+        }
+    }
+    cuts.sort_unstable();
+    cuts.dedup();
+
+    cuts.windows(2)
+        .map(|w| {
+            let (a, b) = (w[0], w[1]);
+            Piece {
+                kind: p.kind,
+                text: p.text[(a - p.start) as usize..(b - p.start) as usize].to_string(),
+                start: a,
+                decos: decos
+                    .items
+                    .iter()
+                    .filter(|d| u32::from(d.range.start()) <= a && b <= u32::from(d.range.end()))
+                    .map(|d| d.style)
+                    .collect(),
+            }
+        })
+        .collect()
 }

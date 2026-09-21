@@ -1,11 +1,10 @@
-use std::{collections::HashMap, sync::Arc};
+use std::collections::HashMap;
 
 use anyhow::bail;
 use dioxus::{
     prelude::{ReadableExt, UnsyncStorage, Writable},
     stores::{Store, store},
 };
-use tokio::sync::{RwLock, RwLockMappedWriteGuard, RwLockReadGuard, RwLockWriteGuard};
 
 use crate::{
     Result,
@@ -104,7 +103,6 @@ impl Editor {
         let w = self.focused_screen().await?;
         match w {
             Screen::Note(n) => Some(n),
-            _ => None,
         }
     }
 

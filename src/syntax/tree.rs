@@ -3,6 +3,7 @@ use cstree::Syntax;
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Syntax)]
 #[repr(u32)]
 pub enum SyntaxKind {
+    Root,
     Newline,
     Text,
     Whitespace,
@@ -12,8 +13,6 @@ pub type ResolvedNode = cstree::syntax::ResolvedNode<SyntaxKind>;
 
 use cstree::build::GreenNodeBuilder;
 use cstree::syntax::SyntaxNode;
-
-use crate::syntax::tree::SyntaxKind::Text;
 
 struct Parser<'s> {
     tokens: Vec<(SyntaxKind, &'s str)>,
@@ -33,7 +32,10 @@ impl Parser<'_> {
     }
 
     fn parse_root(&mut self) {
-        self.builder.start_node(Text);
+        self.builder.start_node(SyntaxKind::Root);
+        while let Some(_kind) = self.peek() {
+            self.bump()
+        }
         self.builder.finish_node();
     }
 }
