@@ -1,21 +1,22 @@
 use std::{fmt::Display, io::Write};
 
+use dioxus_stores::Store;
 use ropey::{Rope, iter::Lines};
-use text_size::{TextRange, TextSize};
 
-use crate::Result;
+use crate::{Result, cursor::Selection, syntax::deco::Decorations};
 
-#[derive(Default, Clone, Debug)]
+#[derive(Default, Clone, Debug, Store)]
 pub struct Buffer {
     text: Rope,
-    pub cursor: TextRange,
+    selection: Selection,
+    pub decorations: Decorations,
 }
 
 impl Buffer {
     pub fn new(text: &str) -> Self {
         Buffer {
             text: Rope::from_str(text),
-            cursor: TextRange::default(),
+            ..Default::default()
         }
     }
 
@@ -31,14 +32,16 @@ impl Buffer {
         self.text.len_chars()
     }
 
-    pub fn content_equals(&self, t: impl Into<String>) -> bool {
-        self.to_string() == t.into()
+    pub fn content_equals(&self, t: &str) -> bool {
+        self.text == t
     }
 
-    pub fn set_cursor_to(&mut self, line: usize, col: usize) {
-        let line_start_char = self.text.line_to_char(line);
-        let char_idx = line_start_char + col;
-        self.cursor = TextRange::empty(TextSize::new(char_idx as u32));
+    pub fn selection(&self) -> &Selection {
+        &self.selection
+    }
+
+    pub fn selection_mut(&mut self) -> &mut Selection {
+        &mut self.selection
     }
 
     pub fn num_words(&self) -> usize {
@@ -69,6 +72,6 @@ impl Buffer {
 
 impl Display for Buffer {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        writeln!(f, "{}", self.text)
+        write!(f, "{}", self.text)
     }
 }

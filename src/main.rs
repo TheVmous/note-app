@@ -7,10 +7,12 @@ pub mod buffer;
 pub mod cli;
 pub mod cmd;
 pub mod config;
+pub mod cursor;
 pub mod editor;
 pub mod fs;
 pub mod note;
 pub mod screen;
+pub mod syntax;
 pub mod themes;
 pub mod ui;
 

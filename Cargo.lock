@@ -1686,6 +1686,32 @@ dependencies = [
 ]
 
 [[package]]
+name = "cstree"
+version = "0.14.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "06cb7daab41fe0fd49e9482eb456fb6e49c2fb64843cd824721befeda0059264"
+dependencies = [
+ "cstree_derive",
+ "hashbrown 0.17.1",
+ "indexmap",
+ "parking_lot",
+ "rustc-hash 2.1.3",
+ "text-size",
+ "triomphe",
+]
+
+[[package]]
+name = "cstree_derive"
+version = "0.14.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3ef4cfdc000ad5eaafb304c599ab87894258acb2a508d2a805213322b18e3be3"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.119",
+]
+
+[[package]]
 name = "cursor-icon"
 version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2529,11 +2555,13 @@ dependencies = [
  "anyhow",
  "astral-tokio-tar",
  "clap",
+ "cstree",
  "dioxus",
  "dioxus-stores",
  "dirs 7.0.0",
  "enum_dispatch",
  "pollster 1.0.1",
+ "rand 0.10.2",
  "ropey",
  "serde",
  "serde_json",
@@ -8257,6 +8285,15 @@ dependencies = [
  "png",
  "thiserror 2.0.20",
  "windows-sys 0.60.2",
+]
+
+[[package]]
+name = "triomphe"
+version = "0.1.16"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b40688ea6389c8171614b25491f71d4a27946e0c7ce2da1c6de27e25abf1a0ae"
+dependencies = [
+ "stable_deref_trait",
 ]
 
 [[package]]

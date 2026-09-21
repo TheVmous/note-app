@@ -18,7 +18,9 @@ strum = { version = "0.28", features = ["derive"] }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 ropey = "1.6"
+cstree = { version = "0.14", features = ["derive"] }
 tendril = "0.5"
+rand = "0.10"
 
 [target.'cfg(not(target_family = "wasm"))'.dependencies]
 tokio = { version = "1", features = ["full"] }

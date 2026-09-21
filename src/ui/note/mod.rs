@@ -30,13 +30,22 @@ pub fn Buffer() -> Element {
         )
     };
 
+    let content_store = note.content();
+    let content = content_store.read();
     let (lines, words, chars) = {
-        let content = note.content();
-        let content = content.read();
-        (content.num_lines(), content.num_words(), content.num_chars())
+        (
+            content.num_lines(),
+            content.num_words(),
+            content.num_chars(),
+        )
     };
+
     let mode = note.mode().read().to_string().to_uppercase();
-    let saved = false; // todo: fix
+    let saved = note
+        .saved_content()
+        .read()
+        .as_ref()
+        .is_some_and(|c| content.content_equals(c));
     let state = if saved { "saved" } else { "dirty" };
     let state_label = if saved { "Saved" } else { "Unsaved" };
 
@@ -66,7 +75,7 @@ pub fn Buffer() -> Element {
             }
 
             div { class: "note-body",
-                engine::Buffer { buffer: note.content() }
+                engine::Buffer { font_size, buffer: content_store }
             }
 
             footer { class: "note-status",
