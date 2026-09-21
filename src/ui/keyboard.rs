@@ -1,21 +1,18 @@
-use crate::{
-    buffer::{BufferOps, Mode},
-    screen::Screen,
-};
+use crate::{editor::Editor, note::Mode, screen::Screen};
 
-use super::EditorCtx;
 use dioxus::prelude::*;
 
-impl EditorCtx {
-    pub async fn handle_key(&mut self, key: Key) -> bool {
-        let editor = self.core.write();
+#[store(pub)]
+impl<Lens> Store<Editor, Lens> {
+    async fn handle_key(&mut self, key: Key) -> bool {
+        let mut editor = self.write();
         let result = editor
             .with_focused_screen_mut(|Screen::Note(note)| {
-                let mode = note.get_mode();
+                let mode = note.mode;
                 match key {
                     Key::Escape => {
                         if mode == Mode::Insert {
-                            note.set_mode(Mode::Normal);
+                            note.mode = Mode::Normal;
                         }
                         false
                     }
@@ -24,7 +21,7 @@ impl EditorCtx {
                         match mode {
                             Mode::Normal => {
                                 if char == "i" {
-                                    note.set_mode(Mode::Insert);
+                                    note.mode = Mode::Insert;
                                     return false;
                                 }
                                 false

@@ -1,5 +1,8 @@
 use serde::Deserialize;
 
+#[cfg(not(target_family = "wasm"))]
+use crate::Result;
+
 #[derive(Clone, Debug, PartialEq)]
 pub struct Theme {
     manifest: ThemeManifest,
@@ -28,7 +31,7 @@ impl Theme {
 }
 
 #[cfg(not(target_family = "wasm"))]
-pub async fn parse_theme(path: std::path::PathBuf) -> anyhow::Result<Theme> {
+pub async fn parse_theme(path: std::path::PathBuf) -> Result<Theme> {
     use tokio::fs::File;
     use tokio::io::AsyncReadExt;
     use tokio_stream::StreamExt;

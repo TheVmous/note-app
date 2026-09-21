@@ -1,6 +1,7 @@
 #![allow(non_snake_case)]
+#![allow(async_fn_in_trait)]
 
-use crate::{buffer::Note, cli::ArgOptions, config::read_config, editor::Editor, ui::open_editor};
+use crate::{cli::ArgOptions, config::read_config, editor::Editor, note::Note, ui::open_editor};
 
 pub mod buffer;
 pub mod cli;
@@ -8,9 +9,12 @@ pub mod cmd;
 pub mod config;
 pub mod editor;
 pub mod fs;
+pub mod note;
 pub mod screen;
 pub mod themes;
 pub mod ui;
+
+pub type Result<T> = anyhow::Result<T>;
 
 fn main() {
     let options = cli::get_options();
@@ -58,12 +62,12 @@ pub async fn reload_editor(editor: &mut Editor) {
 }
 
 #[cfg(target_family = "wasm")]
-pub async fn load_themes(_editor: &mut Editor) -> anyhow::Result<()> {
+pub async fn load_themes(_editor: &mut Editor) -> Result<()> {
     Ok(())
 }
 
 #[cfg(not(target_family = "wasm"))]
-pub async fn load_themes(editor: &mut Editor) -> anyhow::Result<()> {
+pub async fn load_themes(editor: &mut Editor) -> Result<()> {
     let themes_dir = crate::fs::themes_dir();
     let mut read = tokio::fs::read_dir(themes_dir).await?;
 

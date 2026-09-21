@@ -1,21 +1,26 @@
 use std::{collections::HashMap, sync::Arc};
 
 use anyhow::bail;
+use dioxus::{
+    prelude::{ReadableExt, UnsyncStorage, Writable},
+    stores::{Store, store},
+};
 use tokio::sync::{RwLock, RwLockMappedWriteGuard, RwLockReadGuard, RwLockWriteGuard};
 
 use crate::{
-    buffer::Note,
+    Result,
     config::Config,
-    screen::{Screen, ScreenId},
+    note::Note,
+    screen::{Screen, ScreenId, ScreenStoreExt},
     themes::Theme,
 };
 
-#[derive(Default, Clone)]
+#[derive(Default, Clone, Store)]
 pub struct Editor {
     pub config: Config,
     pub themes: Vec<Theme>,
     theme_id: Option<String>,
-    screens: Arc<RwLock<HashMap<ScreenId, Screen>>>,
+    screens: HashMap<ScreenId, Screen>,
     focus: Option<ScreenId>,
     next_id: u64,
 }
@@ -36,31 +41,20 @@ impl Editor {
         }
     }
 
-    pub async fn get_screen(&self, screen_id: ScreenId) -> Option<RwLockReadGuard<'_, Screen>> {
-        let screens_r = self.screens.read().await;
-        RwLockReadGuard::try_map(screens_r, |m| m.get(&screen_id)).ok()
+    pub async fn get_screen(&self, screen_id: ScreenId) -> Option<&Screen> {
+        self.screens.get(&screen_id)
     }
 
-    pub async fn get_screen_mut(
-        &self,
-        screen_id: ScreenId,
-    ) -> Option<RwLockMappedWriteGuard<'_, Screen>> {
-        let screens_w = self.screens.write().await;
-        RwLockWriteGuard::try_map(screens_w, |m| m.get_mut(&screen_id)).ok()
+    pub async fn get_screen_mut(&mut self, screen_id: ScreenId) -> Option<&mut Screen> {
+        self.screens.get_mut(&screen_id)
     }
 
-    pub async fn get_focused_screen(&self) -> Option<RwLockReadGuard<'_, Screen>> {
-        let focus = self.focus?;
-        let screens_r = self.screens.read().await;
-        RwLockReadGuard::try_map(screens_r, |m| m.get(&focus)).ok()
+    pub async fn focused_screen(&self) -> Option<&Screen> {
+        self.screens.get(self.focus.as_ref()?)
     }
 
-    pub async fn get_focused_screen_mut(
-        &mut self,
-    ) -> Option<RwLockMappedWriteGuard<'_, Screen>> {
-        let focus = self.focus?;
-        let screens_w = self.screens.write().await;
-        RwLockWriteGuard::try_map(screens_w, |m| m.get_mut(&focus)).ok()
+    pub async fn focused_screen_mut(&mut self) -> Option<&mut Screen> {
+        self.screens.get_mut(self.focus.as_ref()?)
     }
 
     pub async fn with_screen<R>(
@@ -68,42 +62,37 @@ impl Editor {
         screen_id: ScreenId,
         f: impl FnOnce(&Screen) -> R,
     ) -> Option<R> {
-        let screens_r = self.screens.read().await;
-        screens_r.get(&screen_id).map(f)
+        self.get_screen(screen_id).await.map(f)
     }
 
     pub async fn with_screen_mut<R>(
-        &self,
+        &mut self,
         screen_id: ScreenId,
         f: impl FnOnce(&mut Screen) -> R,
     ) -> Option<R> {
-        let mut screens_w = self.screens.write().await;
-        screens_w.get_mut(&screen_id).map(f)
+        self.get_screen_mut(screen_id).await.map(f)
     }
 
     pub async fn with_focused_screen<R>(&self, f: impl FnOnce(&Screen) -> R) -> Option<R> {
-        let focus = self.focus?;
-        let screens_r = self.screens.read().await;
-        screens_r.get(&focus).map(f)
+        self.focused_screen().await.map(f)
     }
 
-    pub async fn with_focused_screen_mut<R>(&self, f: impl FnOnce(&mut Screen) -> R) -> Option<R> {
-        let focus = self.focus?;
-        let mut screens_w = self.screens.write().await;
-        screens_w.get_mut(&focus).map(f)
+    pub async fn with_focused_screen_mut<R>(
+        &mut self,
+        f: impl FnOnce(&mut Screen) -> R,
+    ) -> Option<R> {
+        self.focused_screen_mut().await.map(f)
     }
 
     pub async fn add_screen(&mut self, screen: Screen) -> ScreenId {
         self.next_id += 1;
         let id = ScreenId(self.next_id);
-        let mut screens_w = self.screens.write().await;
-        screens_w.insert(id, screen);
+        self.screens.insert(id, screen);
         id
     }
 
-    pub async fn focus_screen(&mut self, screen_id: ScreenId) -> anyhow::Result<()> {
-        let screens_r = self.screens.read().await;
-        if !screens_r.contains_key(&screen_id) {
+    pub async fn focus_screen(&mut self, screen_id: ScreenId) -> Result<()> {
+        if !self.screens.contains_key(&screen_id) {
             bail!("Screen id not found");
         }
         self.focus = Some(screen_id);
@@ -111,12 +100,20 @@ impl Editor {
         Ok(())
     }
 
+    pub async fn focused_note(&self) -> Option<&Note> {
+        let w = self.focused_screen().await?;
+        match w {
+            Screen::Note(n) => Some(n),
+            _ => None,
+        }
+    }
+
     pub fn active_theme(&self) -> Option<&Theme> {
         let id = self.theme_id.as_deref()?;
         self.themes.iter().find(|t| t.id() == id)
     }
 
-    pub fn set_theme(&mut self, theme_id: impl Into<String>) -> anyhow::Result<()> {
+    pub fn set_theme(&mut self, theme_id: impl Into<String>) -> Result<()> {
         let theme_id = theme_id.into();
         if !self.themes.iter().any(|t| t.id() == theme_id) {
             bail!("Theme `{theme_id}` not loaded");
@@ -127,5 +124,17 @@ impl Editor {
 
     pub fn clear_theme(&mut self) {
         self.theme_id = None;
+    }
+}
+
+#[store(pub name = EditorFocusExt)]
+impl<Lens> Store<Editor, Lens> {
+    fn focused_note(&mut self) -> Option<Store<Note>>
+    where
+        Lens: Writable<Storage = UnsyncStorage>,
+    {
+        let focus = (*self.focus().read())?;
+        let note = self.screens().get(focus)?.note()?;
+        Some(note.into())
     }
 }

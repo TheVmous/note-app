@@ -1,15 +1,13 @@
-pub mod keyboard;
 pub mod engine;
+pub mod keyboard;
 pub mod note;
+pub mod stores;
 
-use crate::Editor;
+use crate::editor::Editor;
 use dioxus::prelude::*;
+use keyboard::EditorStoreImplExt;
 
 const GLOBAL_CSS: &str = include_str!("global.css");
-#[derive(Clone, Copy)]
-pub struct EditorCtx {
-    core: Signal<Editor>,
-}
 
 pub fn open_editor(editor: Editor) {
     tracing::info!("Launching editor...");
@@ -36,11 +34,8 @@ pub fn open_editor(editor: Editor) {
 #[component]
 fn App() -> Element {
     let initial = use_context::<Editor>();
-
-    use_context_provider(|| EditorCtx {
-        core: Signal::new(initial),
-    });
-    let mut editor_ctx = use_context::<EditorCtx>(); //crashes
+    let mut editor = use_store(move || initial);
+    use_context_provider(|| editor);
 
     rsx! {
         document::Style { "{GLOBAL_CSS}" }
@@ -52,7 +47,7 @@ fn App() -> Element {
             autofocus: true,
 
             onkeydown: move |evt| async move {
-                if !editor_ctx.handle_key(evt.data.key()).await {
+                if !editor.handle_key(evt.data.key()).await {
                     evt.prevent_default();
                 }
             },
@@ -64,7 +59,7 @@ fn App() -> Element {
 
 #[component]
 fn ThemeStyle() -> Element {
-    let editor = use_context::<EditorCtx>().core;
+    let editor = use_context::<Store<Editor>>();
     let css = use_memo(move || {
         editor
             .read()

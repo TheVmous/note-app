@@ -1,144 +1,68 @@
-use std::{
-    fs::{File, OpenOptions},
-    io::{Read, Write},
-    path::PathBuf,
-    sync::Arc,
-    writeln,
-};
+use std::{fmt::Display, io::Write};
 
-use enum_dispatch::enum_dispatch;
+use ropey::{Rope, iter::Lines};
 use text_size::TextRange;
-use thiserror::Error;
 
-use crate::screen::ScreenOps;
-
-#[enum_dispatch(BufferOps)]
-pub enum Buffer {
-    Note(Note),
-}
-
-#[enum_dispatch]
-pub trait BufferOps {
-    fn path(&self) -> &PathBuf;
-    fn content(&self) -> Arc<str>;
-    fn set_content(&mut self, content: Arc<str>);
-    fn is_saved(&self) -> bool;
-    fn cursor(&self) -> TextRange;
-    fn set_cursor(&mut self, cursor: TextRange);
-    fn save(&mut self) -> Result<(), BufferError>;
-    fn set_mode(&mut self, mode: Mode) -> bool;
-    fn get_mode(&self) -> Mode;
-}
-
-#[derive(Clone, Copy, Debug, Default, PartialEq, strum::Display)]
-pub enum Mode {
-    #[default]
-    Normal,
-    Insert,
-    Select,
-}
+use crate::Result;
 
 #[derive(Default, Clone, Debug)]
-pub struct Note {
-    pub path: PathBuf,
-    pub content: Arc<str>,
-    pub saved_content: Option<Arc<str>>,
-    pub cursor: TextRange,
-    pub saved: bool,
-    pub mode: Mode,
+pub struct Buffer {
+    text: Rope,
+    cursor: TextRange,
 }
 
-impl Note {
-    pub fn blank(path: PathBuf) -> Self {
-        Note {
-            path,
-            content: Arc::default(),
+impl Buffer {
+    pub fn new(text: &str) -> Self {
+        Buffer {
+            text: Rope::from_str(text),
             cursor: TextRange::default(),
-            saved_content: None,
-            saved: false,
-            mode: Mode::default(),
         }
     }
 
-    pub fn open(path: PathBuf) -> Result<Note, BufferError> {
-        if !path.exists() {
-            return Ok(Self::blank(path));
+    pub fn lines<'a>(&'a self) -> Lines<'a> {
+        self.text.lines()
+    }
+
+    pub fn num_lines(&self) -> usize {
+        self.text.len_lines()
+    }
+
+    pub fn num_chars(&self) -> usize {
+        self.text.len_chars()
+    }
+
+    pub fn content_equals(&self, t: impl Into<String>) -> bool {
+        self.to_string() == t.into()
+    }
+
+    pub fn num_words(&self) -> usize {
+        let mut count = 0;
+        let mut in_word = false;
+
+        for chunk in self.text.chunks() {
+            for c in chunk.chars() {
+                if c.is_whitespace() {
+                    in_word = false;
+                } else if !in_word {
+                    count += 1;
+                    in_word = true;
+                }
+            }
         }
-        Self::read(path)
+
+        count
     }
 
-    pub fn read(path: PathBuf) -> Result<Note, BufferError> {
-        let mut buffer = String::new();
-        let mut file = File::open(&path)?;
-        file.read_to_string(&mut buffer)?;
-        let content: Arc<str> = buffer.into();
+    pub fn apply(&mut self) {}
 
-        Ok(Note {
-            path,
-            saved_content: Some(content.clone()),
-            content,
-            cursor: TextRange::default(),
-            saved: true,
-            mode: Mode::default(),
-        })
-    }
-}
-
-impl BufferOps for Note {
-    fn path(&self) -> &PathBuf {
-        &self.path
-    }
-
-    fn content(&self) -> Arc<str> {
-        self.content.clone()
-    }
-
-    fn is_saved(&self) -> bool {
-        self.saved
-    }
-
-    fn save(&mut self) -> Result<(), BufferError> {
-        let mut file = OpenOptions::new().write(true).open(&self.path)?;
-        writeln!(&mut file, "{}", self.content)?;
-        tracing::debug!("Saved file `{}`", self.path.display());
-        self.saved_content = Some(self.content.clone());
-        self.saved = true;
+    pub fn write_to<T: Write>(&self, writer: &mut T) -> Result<()> {
+        self.text.write_to(writer)?;
         Ok(())
     }
-
-    fn set_content(&mut self, content: Arc<str>) {
-        self.content = content;
-    }
-
-    fn cursor(&self) -> TextRange {
-        self.cursor
-    }
-
-    fn set_cursor(&mut self, cursor: TextRange) {
-        self.cursor = cursor
-    }
-
-    fn set_mode(&mut self, mode: Mode) -> bool {
-        self.mode = mode;
-        true
-    }
-
-    fn get_mode(&self) -> Mode {
-        self.mode
-    }
 }
 
-impl ScreenOps for Note {
-    fn title(&self) -> String {
-        "file".into()
+impl Display for Buffer {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        writeln!(f, "{}", self.text)
     }
-}
-
-#[derive(Error, Debug)]
-pub enum BufferError {
-    #[error("io operation error: {io}")]
-    IoError {
-        #[from]
-        io: std::io::Error,
-    },
 }

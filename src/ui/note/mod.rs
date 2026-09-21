@@ -1,44 +1,44 @@
 use dioxus::prelude::*;
 
-use super::EditorCtx;
-use crate::{buffer::BufferOps, screen::Screen};
+use crate::{
+    editor::{Editor, EditorFocusExt, EditorStoreExt},
+    note::{Note, NoteStoreExt},
+    ui::engine,
+};
 
 #[component]
 pub fn Buffer() -> Element {
-    let mut editor = use_context::<EditorCtx>().core;
-    let font_size = editor.read().config.visuals.font_size;
+    let mut editor = use_context::<Store<Editor>>();
+    let font_size = editor.config().read().visuals.font_size;
 
-    let note = use_resource(move || {
-        let core = editor.read().clone();
-        async move {
-            core.with_focused_screen(|Screen::Note(note)| note.clone())
-                .await
-        }
-    });
-
-    let Some(Some(note)) = note() else {
+    let Some(note): Option<Store<Note>> = editor.focused_note() else {
         return rsx! {
             div { class: "note-empty", "No note open" }
         };
     };
 
-    let name = note
-        .path
-        .file_name()
-        .map(|n| n.to_string_lossy().into_owned())
-        .unwrap_or_else(|| "untitled".into());
-    let dir = note
-        .path
-        .parent()
-        .filter(|p| !p.as_os_str().is_empty())
-        .map(|p| format!("{}/", p.display()));
+    let (name, dir) = {
+        let path = note.path();
+        let path = path.read();
+        (
+            path.file_name()
+                .map(|n| n.to_string_lossy().into_owned())
+                .unwrap_or_else(|| "untitled".into()),
+            path.parent()
+                .filter(|p| !p.as_os_str().is_empty())
+                .map(|p| format!("{}/", p.display())),
+        )
+    };
 
-    let lines = note.content.lines().count().max(1);
-    let words = note.content.split_whitespace().count();
-    let chars = note.content.chars().count();
-    let mode = note.mode.to_string().to_uppercase();
-    let state = if note.saved { "saved" } else { "dirty" };
-    let state_label = if note.saved { "Saved" } else { "Unsaved" };
+    let (lines, words, chars) = {
+        let content = note.content();
+        let content = content.read();
+        (content.num_lines(), content.num_words(), content.num_chars())
+    };
+    let mode = note.mode().read().to_string().to_uppercase();
+    let saved = false; // todo: fix
+    let state = if saved { "saved" } else { "dirty" };
+    let state_label = if saved { "Saved" } else { "Unsaved" };
 
     rsx! {
         div { class: "note", style: "--note-font-size: {font_size}px",
@@ -53,14 +53,12 @@ pub fn Buffer() -> Element {
                     span { class: "note-state {state}", "{state_label}" }
                     button {
                         class: "note-save",
-                        onclick: move |_| async move {
-                            let core = editor.peek().clone();
-                            core.with_focused_screen_mut(|Screen::Note(note)| match note.save() {
+                        onclick: move |_| {
+                            let mut note = note;
+                            match note.write().save() {
                                 Ok(_) => println!("all good saving"),
                                 Err(e) => println!("{}", e),
-                            })
-                            .await;
-                            editor.write();
+                            }
                         },
                         "Save"
                     }
@@ -68,20 +66,7 @@ pub fn Buffer() -> Element {
             }
 
             div { class: "note-body",
-                textarea {
-                    class: "note-editor",
-                    spellcheck: false,
-                    value: "{note.content}",
-                    oninput: move |ev| async move {
-                        let core = editor.peek().clone();
-                        core.with_focused_screen_mut(|Screen::Note(note)| {
-                            note.content = ev.value().into();
-                            note.saved = note.saved_content.as_deref() == Some(&*note.content);
-                        })
-                        .await;
-                        editor.write();
-                    }
-                }
+                engine::Buffer { buffer: note.content() }
             }
 
             footer { class: "note-status",

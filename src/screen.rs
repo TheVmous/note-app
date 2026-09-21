@@ -1,6 +1,7 @@
+use dioxus_stores::Store;
 use enum_dispatch::enum_dispatch;
 
-use crate::buffer::Note;
+use crate::note::Note;
 
 #[derive(Clone, Copy, PartialEq, Eq, Hash)]
 pub struct ScreenId(pub u64);
@@ -10,8 +11,8 @@ pub trait ScreenOps {
     fn title(&self) -> String;
 }
 
+#[derive(Clone, Store)]
 #[enum_dispatch(ScreenOps)]
-#[derive(Clone)]
 pub enum Screen {
     Note(Note),
 }
