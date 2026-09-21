@@ -3,13 +3,12 @@ use std::{fmt::Display, io::Write};
 use dioxus_stores::Store;
 use ropey::{Rope, iter::Lines};
 
-use crate::{Result, cursor::Selection, syntax::deco::Decorations};
+use crate::{Result, cursor::Selection};
 
 #[derive(Default, Clone, Debug, Store)]
 pub struct Buffer {
     text: Rope,
     selection: Selection,
-    pub decorations: Decorations,
 }
 
 impl Buffer {

@@ -18,7 +18,7 @@ strum = { version = "0.28", features = ["derive"] }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 ropey = "1.6"
-cstree = { version = "0.14", features = ["derive"] }
+cstree = { version = "0.14", features = ["derive", "multi_threaded_interning"] }
 tendril = "0.5"
 rand = "0.10"
 

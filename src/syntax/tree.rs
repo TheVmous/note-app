@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use cstree::Syntax;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Syntax)]
@@ -11,16 +13,19 @@ pub enum SyntaxKind {
 
 pub type ResolvedNode = cstree::syntax::ResolvedNode<SyntaxKind>;
 
-use cstree::build::GreenNodeBuilder;
+use cstree::build::{GreenNodeBuilder, NodeCache};
+use cstree::interning::{MultiThreadedTokenInterner, new_threaded_interner};
 use cstree::syntax::SyntaxNode;
 
-struct Parser<'s> {
+type Interner = Arc<MultiThreadedTokenInterner>;
+
+struct Parser<'s, 'c> {
     tokens: Vec<(SyntaxKind, &'s str)>,
     pos: usize,
-    builder: GreenNodeBuilder<'static, 'static, SyntaxKind>,
+    builder: GreenNodeBuilder<'c, 'static, SyntaxKind, Interner>,
 }
 
-impl Parser<'_> {
+impl Parser<'_, '_> {
     fn peek(&self) -> Option<SyntaxKind> {
         self.tokens.get(self.pos).map(|t| t.0)
     }
@@ -65,14 +70,27 @@ fn take_while(s: &str, pred: impl Fn(char) -> bool) -> usize {
     s.find(|c| !pred(c)).unwrap_or(s.len())
 }
 
-pub fn parse(src: &str) -> ResolvedNode {
-    let mut p = Parser {
-        tokens: lex(src),
-        pos: 0,
-        builder: GreenNodeBuilder::new(),
-    };
-    p.parse_root();
-    let (green, cache) = p.builder.finish();
-    let interner = cache.unwrap().into_interner().unwrap();
-    SyntaxNode::new_root_with_resolver(green, interner)
+pub struct Grammar {
+    cache: NodeCache<'static, Interner>,
+}
+
+impl Default for Grammar {
+    fn default() -> Self {
+        Grammar {
+            cache: NodeCache::from_interner(Arc::new(new_threaded_interner())),
+        }
+    }
+}
+
+impl Grammar {
+    pub fn parse(&mut self, src: &str) -> ResolvedNode {
+        let mut p = Parser {
+            tokens: lex(src),
+            pos: 0,
+            builder: GreenNodeBuilder::with_cache(&mut self.cache),
+        };
+        p.parse_root();
+        let (green, _) = p.builder.finish();
+        SyntaxNode::new_root_with_resolver(green, self.cache.interner().clone())
+    }
 }

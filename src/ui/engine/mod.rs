@@ -1,3 +1,5 @@
+use std::{cell::RefCell, rc::Rc};
+
 use dioxus::prelude::*;
 
 mod deco;
@@ -5,15 +7,23 @@ mod deco;
 use crate::{
     buffer::BufferStoreExt,
     cursor::Cursor,
-    syntax::{deco::decorate, to_lines, tree::parse},
+    syntax::{deco::decorate, to_lines, tree::Grammar},
+    ui::engine::deco::visible_decorations,
 };
 
 #[component]
 pub fn Buffer(font_size: f32, buffer: Store<crate::buffer::Buffer>) -> Element {
     let mut input_ref = use_signal(|| None);
 
-    let base = use_memo(move || to_lines(&parse(&buffer.text().read().to_string())));
-    let lines = use_memo(move || decorate(&base.read(), &buffer.decorations().read()));
+    let grammar = use_hook(|| Rc::new(RefCell::new(Grammar::default())));
+    let base = use_memo(move || {
+        let text = buffer.text().read().to_string();
+        to_lines(&grammar.borrow_mut().parse(&text))
+    });
+    let lines = use_memo(move || {
+        let decos = visible_decorations(&buffer.selection().read());
+        decorate(&base.read(), &decos)
+    });
 
     rsx! {
         div { class: "engine-container",
@@ -32,9 +42,7 @@ pub fn Buffer(font_size: f32, buffer: Store<crate::buffer::Buffer>) -> Element {
                             anchor: pos,
                             head: pos+1
                         };
-                        let mut buffer = buffer.write();
-                        let selection = buffer.selection_mut();
-                        selection.set(cursor);
+                        buffer.selection().write().set(cursor);
                     }
                     if let Some(element) = input_ref() {
                         let _ = element.set_focus(true).await;

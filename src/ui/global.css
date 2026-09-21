@@ -96,6 +96,7 @@ body {
     font-size: var(--note-font-size);
     white-space: pre;
     tab-size: 4;
+    -webkit-user-select: none;
     user-select: none;
 }
 

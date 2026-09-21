@@ -1,10 +1,16 @@
+use text_size::TextRange;
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Cursor {
     pub anchor: usize,
     pub head: usize,
 }
 
-impl Cursor {}
+impl Cursor {
+    pub fn range(&self) -> TextRange {
+        TextRange::new((self.anchor as u32).into(), (self.head as u32).into())
+    }
+}
 
 #[derive(Default, Clone, Debug)]
 pub struct Selection {

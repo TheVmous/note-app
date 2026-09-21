@@ -1,4 +1,18 @@
-use crate::syntax::{Piece, deco::Style};
+use crate::{
+    cursor::Selection,
+    syntax::{
+        Piece,
+        deco::{Decorations, Style},
+    },
+};
+
+pub fn visible_decorations(sel: &Selection) -> Decorations {
+    let mut all = Decorations::default();
+    for cursor in sel.cursors() {
+        all.add(cursor.range(), Style::Selection);
+    }
+    all
+}
 
 impl Piece {
     pub fn class(&self) -> String {
