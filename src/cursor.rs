@@ -1,21 +1,24 @@
-use text_size::TextRange;
-
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Cursor {
     pub anchor: usize,
     pub head: usize,
 }
 
-impl Cursor {
-    pub fn range(&self) -> TextRange {
-        TextRange::new((self.anchor as u32).into(), (self.head as u32).into())
-    }
-}
+impl Cursor {}
 
-#[derive(Default, Clone, Debug)]
+#[derive(Clone, Debug)]
 pub struct Selection {
     cursors: Vec<Cursor>,
     primary_index: usize,
+}
+
+impl Default for Selection {
+    fn default() -> Self {
+        Self {
+            cursors: vec![Cursor { head: 0, anchor: 0 }],
+            primary_index: 0,
+        }
+    }
 }
 
 impl Selection {
@@ -26,6 +29,15 @@ impl Selection {
     pub fn add(&mut self, cursor: Cursor) {
         self.cursors.push(cursor);
         self.primary_index = self.cursors.len() - 1;
+    }
+
+    pub fn advance(&mut self, delta: isize) {
+        println!("old: {self:?}");
+        for cursor in &mut self.cursors {
+            cursor.anchor = (cursor.anchor as isize + delta).max(0) as usize;
+            cursor.head = (cursor.head as isize + delta).max(0) as usize;
+        }
+        println!("new: {self:?}")
     }
 
     pub fn set(&mut self, cursor: Cursor) {

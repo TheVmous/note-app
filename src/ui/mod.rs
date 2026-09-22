@@ -47,6 +47,7 @@ fn App() -> Element {
             autofocus: true,
 
             onkeydown: move |evt| async move {
+                let key = evt.data.key();
                 if !editor.handle_key(evt.data.key()).await {
                     evt.prevent_default();
                 }

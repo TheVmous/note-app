@@ -127,7 +127,7 @@ impl Editor {
 
 #[store(pub name = EditorFocusExt)]
 impl<Lens> Store<Editor, Lens> {
-    fn focused_note(&mut self) -> Option<Store<Note>>
+    pub fn focused_note(&mut self) -> Option<Store<Note>>
     where
         Lens: Writable<Storage = UnsyncStorage>,
     {

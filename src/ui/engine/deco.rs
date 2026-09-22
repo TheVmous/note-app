@@ -1,3 +1,5 @@
+use text_size::TextRange;
+
 use crate::{
     cursor::Selection,
     syntax::{
@@ -9,7 +11,9 @@ use crate::{
 pub fn visible_decorations(sel: &Selection) -> Decorations {
     let mut all = Decorations::default();
     for cursor in sel.cursors() {
-        all.add(cursor.range(), Style::Selection);
+        let start = (cursor.head.min(cursor.anchor) as u32).into();
+        let end = (cursor.head.max(cursor.anchor) as u32).into();
+        all.add(TextRange::new(start, end), Style::Selection);
     }
     all
 }
