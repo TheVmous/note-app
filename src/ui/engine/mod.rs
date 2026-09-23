@@ -3,6 +3,7 @@ use std::{cell::RefCell, rc::Rc};
 use dioxus::prelude::*;
 
 mod deco;
+mod keyboard;
 
 use crate::{
     buffer::{BufferStoreExt, BufferStoreImplExt},
@@ -10,7 +11,7 @@ use crate::{
     syntax::{deco::decorate, to_lines, tree::Grammar},
     ui::{
         engine::deco::visible_decorations,
-        keyboard::{Direction, EditIntent, edit_intent},
+        keyboard::{Direction, EditIntent, HandleKey, edit_intent},
     },
 };
 
@@ -30,6 +31,11 @@ pub fn Buffer(font_size: f32, buffer: Store<crate::buffer::Buffer>) -> Element {
 
     rsx! {
         div { class: "engine-container",
+            onkeydown: move |evt| async move {
+                if !buffer.handle_key(evt.data.key()).await {
+                    evt.prevent_default();
+                }
+            },
             textarea {
                 autofocus: true,
                 class: "engine-textarea",

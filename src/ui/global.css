@@ -120,3 +120,8 @@ body {
 .deco-selection {
     background-color: lavender !important;
 }
+
+.cursor-bar {
+    height: 100%;
+    width: 3px;
+}

@@ -1,7 +1,7 @@
 use std::{fmt::Display, io::Write};
 
 use dioxus::signals::{ReadSignal, Readable, UnsyncStorage};
-use dioxus_stores::{ReadStore, Store, WriteStore, store};
+use dioxus_stores::{ReadStore, Store, store};
 use ropey::{Rope, iter::Lines};
 
 use crate::{
@@ -13,6 +13,7 @@ use crate::{
 pub struct Buffer {
     text: Rope,
     pub selection: Selection,
+    pub mode: Mode,
 }
 
 impl Buffer {
@@ -174,6 +175,14 @@ impl<Lens> Store<Buffer, Lens> {
             .map_writer(ReadSignal::from)
             .into()
     }
+}
+
+#[derive(Clone, Copy, Debug, Default, PartialEq, strum::Display)]
+pub enum Mode {
+    #[default]
+    Normal,
+    Insert,
+    Select,
 }
 
 mod tests {

@@ -1,6 +1,7 @@
 use dioxus::prelude::*;
 
 use crate::{
+    buffer::BufferStoreExt,
     editor::{Editor, EditorFocusExt, EditorStoreExt},
     note::{Note, NoteStoreExt},
     ui::engine,
@@ -40,7 +41,7 @@ pub fn Buffer() -> Element {
         )
     };
 
-    let mode = note.mode().read().to_string().to_uppercase();
+    let mode = note.content().mode().read().to_string().to_uppercase();
     let saved = note
         .saved_content()
         .read()

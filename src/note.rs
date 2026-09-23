@@ -10,21 +10,12 @@ use text_size::TextRange;
 
 use crate::{Result, buffer::Buffer, screen::ScreenOps};
 
-#[derive(Clone, Copy, Debug, Default, PartialEq, strum::Display)]
-pub enum Mode {
-    #[default]
-    Normal,
-    Insert,
-    Select,
-}
-
 #[derive(Default, Clone, Debug, Store)]
 pub struct Note {
     pub path: PathBuf,
     pub content: Buffer,
     pub saved_content: Option<Arc<str>>,
     pub cursor: TextRange,
-    pub mode: Mode,
 }
 
 impl Note {
@@ -34,7 +25,6 @@ impl Note {
             content: Buffer::default(),
             cursor: TextRange::default(),
             saved_content: None,
-            mode: Mode::default(),
         }
     }
 
@@ -55,7 +45,6 @@ impl Note {
             content: Buffer::new(&buffer),
             saved_content: Some(buffer.into()),
             cursor: TextRange::default(),
-            mode: Mode::default(),
         })
     }
 
