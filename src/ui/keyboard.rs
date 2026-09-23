@@ -2,9 +2,15 @@ use crate::{editor::Editor, note::Mode, screen::Screen};
 
 use dioxus::prelude::*;
 
-#[store(pub)]
-impl<Lens> Store<Editor, Lens> {
-    pub async fn handle_key(&mut self, key: Key) -> bool {
+pub trait HandleKey {
+    async fn handle_key(&mut self, key: Key) -> bool;
+}
+
+impl<Lens> HandleKey for Store<Editor, Lens>
+where
+    Lens: Writable<Target = Editor> + Copy + 'static,
+{
+    async fn handle_key(&mut self, key: Key) -> bool {
         let mut editor = self.write();
         let result = editor
             .with_focused_screen_mut(|Screen::Note(note)| {
@@ -87,16 +93,30 @@ pub fn edit_intent(input: &BeforeInputData) -> EditIntent {
             EditIntent::Paste
         }
 
-        DeleteContentBackward => EditIntent::Delete { dir: Backward, unit: Char },
-        DeleteContentForward => EditIntent::Delete { dir: Forward, unit: Char },
-        DeleteWordBackward => EditIntent::Delete { dir: Backward, unit: Word },
-        DeleteWordForward => EditIntent::Delete { dir: Forward, unit: Word },
-        DeleteSoftLineBackward | DeleteHardLineBackward => {
-            EditIntent::Delete { dir: Backward, unit: Line }
-        }
-        DeleteSoftLineForward | DeleteHardLineForward => {
-            EditIntent::Delete { dir: Forward, unit: Line }
-        }
+        DeleteContentBackward => EditIntent::Delete {
+            dir: Backward,
+            unit: Char,
+        },
+        DeleteContentForward => EditIntent::Delete {
+            dir: Forward,
+            unit: Char,
+        },
+        DeleteWordBackward => EditIntent::Delete {
+            dir: Backward,
+            unit: Word,
+        },
+        DeleteWordForward => EditIntent::Delete {
+            dir: Forward,
+            unit: Word,
+        },
+        DeleteSoftLineBackward | DeleteHardLineBackward => EditIntent::Delete {
+            dir: Backward,
+            unit: Line,
+        },
+        DeleteSoftLineForward | DeleteHardLineForward => EditIntent::Delete {
+            dir: Forward,
+            unit: Line,
+        },
         DeleteEntireSoftLine => EditIntent::DeleteLine,
         DeleteContent | DeleteByCut | DeleteByDrag => EditIntent::DeleteSelection,
 

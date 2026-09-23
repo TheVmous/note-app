@@ -4,7 +4,15 @@ pub struct Cursor {
     pub head: usize,
 }
 
-impl Cursor {}
+impl Cursor {
+    pub fn shrink_head(&mut self) {
+        self.head = self.anchor
+    }
+
+    pub fn shrink_anchor(&mut self) {
+        self.anchor = self.head
+    }
+}
 
 #[derive(Clone, Debug)]
 pub struct Selection {
@@ -34,8 +42,8 @@ impl Selection {
     pub fn advance(&mut self, delta: isize) {
         println!("old: {self:?}");
         for cursor in &mut self.cursors {
-            cursor.anchor = (cursor.anchor as isize + delta).max(0) as usize;
-            cursor.head = (cursor.head as isize + delta).max(0) as usize;
+            cursor.anchor = cursor.anchor.saturating_add_signed(delta);
+            cursor.head = cursor.head.saturating_add_signed(delta);
         }
         println!("new: {self:?}")
     }
@@ -48,6 +56,18 @@ impl Selection {
     pub fn collapse(&mut self) {
         self.cursors.drain(0..self.cursors.len() - 1);
         self.primary_index = 0;
+    }
+
+    pub fn shrink_heads(&mut self) {
+        for cursor in &mut self.cursors {
+            cursor.shrink_head();
+        }
+    }
+
+    pub fn shrink_anchors(&mut self) {
+        for cursor in &mut self.cursors {
+            cursor.shrink_anchor();
+        }
     }
 
     pub fn cursors(&self) -> &[Cursor] {

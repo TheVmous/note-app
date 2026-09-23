@@ -5,7 +5,7 @@ pub mod stores;
 
 use crate::editor::Editor;
 use dioxus::prelude::*;
-use keyboard::EditorStoreImplExt;
+use keyboard::HandleKey;
 
 const GLOBAL_CSS: &str = include_str!("global.css");
 

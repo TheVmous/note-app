@@ -8,7 +8,10 @@ use crate::{
     buffer::{BufferStoreExt, BufferStoreImplExt},
     cursor::Cursor,
     syntax::{deco::decorate, to_lines, tree::Grammar},
-    ui::{engine::deco::visible_decorations, keyboard::{EditIntent, edit_intent}},
+    ui::{
+        engine::deco::visible_decorations,
+        keyboard::{Direction, EditIntent, edit_intent},
+    },
 };
 
 #[component]
@@ -30,10 +33,11 @@ pub fn Buffer(font_size: f32, buffer: Store<crate::buffer::Buffer>) -> Element {
             textarea {
                 autofocus: true,
                 class: "engine-textarea",
-                value: "easter egg",
-                onmounted: move |cx| input_ref.set(Some(cx.data())),
+                onmounted: move |cx| {
+                    input_ref.set(Some(cx.data()));
+                    reset_input();
+                },
                 onbeforeinput: move |ev| {
-                    println!("{}", ev.value());
                     println!("event: {}", ev.input_type());
                     ev.prevent_default();
                     match edit_intent(&ev) {
@@ -47,16 +51,19 @@ pub fn Buffer(font_size: f32, buffer: Store<crate::buffer::Buffer>) -> Element {
                         EditIntent::Delete { dir, .. } => {
                             let len = 1; // todo
                             let mut buffer = buffer.write();
-                            println!("delte");
                             buffer.change(|c| {
-                                (c.head - 1, c.head, None)
+                                let from = c.head.saturating_add_signed(len * dir as isize);
+                                (from, from + len as usize, None)
                             });
-                            buffer.selection_mut().advance(len * dir as isize);
+                            if matches!(dir, Direction::Backward) {
+                                buffer.selection_mut().advance(-len);
+                            }
                         }
                         o => {
                             println!("unsupported event {o:?}");
                         }
                     }
+                    reset_input();
                 },
             }
             div {
@@ -64,6 +71,7 @@ pub fn Buffer(font_size: f32, buffer: Store<crate::buffer::Buffer>) -> Element {
                 onmousedown: move |_| async move {
                     if let Some(element) = input_ref() {
                         let _ = element.set_focus(true).await;
+                        reset_input();
                     }
                 },
                 onclick: move |ev| async move {
@@ -95,6 +103,15 @@ pub fn Buffer(font_size: f32, buffer: Store<crate::buffer::Buffer>) -> Element {
             }
         }
     }
+}
+
+const INPUT_JS: &str = include_str!("input.js");
+
+fn reset_input() {
+    spawn(async {
+        let js = format!("{INPUT_JS}\ndioxus.send(resetInput());");
+        let _ = document::eval(&js).recv::<bool>().await;
+    });
 }
 
 const CARET_JS: &str = include_str!("caret.js");
