@@ -10,13 +10,13 @@ use crate::{
     cursor::Cursor,
     syntax::{deco::decorate, to_lines, tree::Grammar},
     ui::{
-        engine::deco::visible_decorations,
-        keyboard::{Direction, EditIntent, HandleKey, edit_intent},
+        engine::{deco::visible_decorations, keyboard::handle_input},
+        keyboard::HandleKey,
     },
 };
 
 #[component]
-pub fn Buffer(font_size: f32, buffer: Store<crate::buffer::Buffer>) -> Element {
+pub fn Buffer(buffer: Store<crate::buffer::Buffer>) -> Element {
     let mut input_ref = use_signal(|| None);
 
     let grammar = use_hook(|| Rc::new(RefCell::new(Grammar::default())));
@@ -25,7 +25,7 @@ pub fn Buffer(font_size: f32, buffer: Store<crate::buffer::Buffer>) -> Element {
         to_lines(&grammar.borrow_mut().parse(&text))
     });
     let lines = use_memo(move || {
-        let decos = visible_decorations(&buffer.selection().read());
+        let decos = visible_decorations(&buffer.mode().read(), &buffer.selection().read());
         decorate(&base.read(), &decos)
     });
 
@@ -44,31 +44,8 @@ pub fn Buffer(font_size: f32, buffer: Store<crate::buffer::Buffer>) -> Element {
                     reset_input();
                 },
                 onbeforeinput: move |ev| {
-                    println!("event: {}", ev.input_type());
                     ev.prevent_default();
-                    match edit_intent(&ev) {
-                        EditIntent::InsertText(data) => {
-                            let mut buffer = buffer.write();
-                            buffer.change(|c| {
-                                (c.head, c.head, Some(data.clone()))
-                            });
-                            buffer.selection_mut().advance(data.len() as isize);
-                        },
-                        EditIntent::Delete { dir, .. } => {
-                            let len = 1; // todo
-                            let mut buffer = buffer.write();
-                            buffer.change(|c| {
-                                let from = c.head.saturating_add_signed(len * dir as isize);
-                                (from, from + len as usize, None)
-                            });
-                            if matches!(dir, Direction::Backward) {
-                                buffer.selection_mut().advance(-len);
-                            }
-                        }
-                        o => {
-                            println!("unsupported event {o:?}");
-                        }
-                    }
+                    handle_input(buffer, ev);
                     reset_input();
                 },
             }

@@ -5,6 +5,7 @@ use crate::syntax::{Line, Piece};
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Style {
     Selection,
+    Cursor,
 }
 
 #[derive(Debug, Clone, PartialEq)]

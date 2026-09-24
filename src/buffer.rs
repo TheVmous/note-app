@@ -24,6 +24,22 @@ impl Buffer {
         }
     }
 
+    pub fn set_mode(&mut self, mode: Mode) {
+        if self.mode == mode {
+            return;
+        }
+        match &mode {
+            Mode::Insert => {
+                self.selection_mut().shrink_heads();
+            }
+            Mode::Normal => {
+                self.selection_mut().normalize();
+            }
+            _ => {}
+        }
+        self.mode = mode;
+    }
+
     pub fn lines<'a>(&'a self) -> Lines<'a> {
         self.text.lines()
     }

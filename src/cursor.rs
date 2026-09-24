@@ -40,12 +40,16 @@ impl Selection {
     }
 
     pub fn advance(&mut self, delta: isize) {
-        println!("old: {self:?}");
         for cursor in &mut self.cursors {
             cursor.anchor = cursor.anchor.saturating_add_signed(delta);
             cursor.head = cursor.head.saturating_add_signed(delta);
         }
-        println!("new: {self:?}")
+    }
+
+    pub fn advance_head(&mut self, delta: isize) {
+        for cursor in &mut self.cursors {
+            cursor.head = cursor.head.saturating_add_signed(delta);
+        }
     }
 
     pub fn set(&mut self, cursor: Cursor) {
@@ -56,6 +60,14 @@ impl Selection {
     pub fn collapse(&mut self) {
         self.cursors.drain(0..self.cursors.len() - 1);
         self.primary_index = 0;
+    }
+
+    pub fn normalize(&mut self) {
+        for cursor in &mut self.cursors {
+            if cursor.head == cursor.anchor {
+                cursor.head += 1;
+            }
+        }
     }
 
     pub fn shrink_heads(&mut self) {

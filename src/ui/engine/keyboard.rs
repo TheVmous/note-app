@@ -2,7 +2,7 @@ use dioxus::prelude::*;
 
 use crate::{
     buffer::{Buffer, Mode},
-    ui::keyboard::HandleKey,
+    ui::keyboard::{Direction, EditIntent, HandleKey, edit_intent},
 };
 
 impl<Lens> HandleKey for Store<Buffer, Lens>
@@ -17,7 +17,7 @@ where
             Key::Escape => {
                 if mode == Mode::Insert {
                     let mut buffer = self.write();
-                    buffer.mode = Mode::Normal;
+                    buffer.set_mode(Mode::Normal)
                 }
                 false
             }
@@ -36,6 +36,30 @@ where
                 }
             }
             _ => true,
+        }
+    }
+}
+
+pub fn handle_input(mut buffer: Store<Buffer>, ev: Event<BeforeInputData>) {
+    match edit_intent(&ev) {
+        EditIntent::InsertText(data) => {
+            let mut buffer = buffer.write();
+            buffer.change(|c| (c.head, c.head, Some(data.clone())));
+            buffer.selection_mut().advance(data.len() as isize);
+        }
+        EditIntent::Delete { dir, .. } => {
+            let len = 1; // todo
+            let mut buffer = buffer.write();
+            buffer.change(|c| {
+                let from = c.head.saturating_add_signed(len * dir as isize);
+                (from, from + len as usize, None)
+            });
+            if matches!(dir, Direction::Backward) {
+                buffer.selection_mut().advance(-len);
+            }
+        }
+        o => {
+            println!("unsupported event {o:?}");
         }
     }
 }

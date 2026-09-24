@@ -76,7 +76,7 @@ pub fn Buffer() -> Element {
             }
 
             div { class: "note-body",
-                engine::Buffer { font_size, buffer: content_store }
+                engine::Buffer { buffer: content_store }
             }
 
             footer { class: "note-status",
