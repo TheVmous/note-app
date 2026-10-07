@@ -41,6 +41,7 @@ impl Selection {
 
     pub fn advance(&mut self, delta: isize) {
         for cursor in &mut self.cursors {
+            //shouldn't we have something here that blocks the cursor from going out of bounds?
             cursor.anchor = cursor.anchor.saturating_add_signed(delta);
             cursor.head = cursor.head.saturating_add_signed(delta);
         }

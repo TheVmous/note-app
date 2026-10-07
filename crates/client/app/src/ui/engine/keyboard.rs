@@ -45,6 +45,13 @@ where
                 buffer.selection_mut().advance(1);
                 false
             }
+            Key::ArrowDown => {
+                let mut buffer = self.write();
+                // buffer.selection_mut().advance(-1);
+                let newLine = "\n";
+                buffer.selection_mut().advance(newLine.len() as isize);
+                false
+            }
             _ => true,
         }
     }

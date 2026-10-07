@@ -1,9 +1,19 @@
-[package]
-name = "editor"
+[workspace]
 version = "0.1.0"
 edition = "2024"
+members = ["crates/client/*", "crates/server/*"]
 
-[dependencies]
+[workspace.dependencies]
+axum = { version = "0.8", features = ["macros"] }
+axum-extra = { version = "0.12", features = ["typed-header"] }
+tower = { version = "0.5", features = ["util"] }
+tower-http = { version = "0.7", features = [
+    "trace",
+    "add-extension",
+    "cors",
+    "fs",
+    "auth",
+] }
 anyhow = "1.0"
 dioxus = "=0.8.0-alpha.1"
 dioxus-stores = "=0.8.0-alpha.1"
@@ -13,6 +23,11 @@ text-size = "1.1"
 serde = { version = "1.0", features = ["derive"] }
 toml = "1.1"
 thiserror = "2"
+tokio = "1"
+astral-tokio-tar = "0.7"
+tokio-stream = "0.1"
+dirs = "7"
+pollster = "1"
 enum_dispatch = "0.3"
 strum = { version = "0.28", features = ["derive"] }
 tracing = "0.1"
@@ -21,20 +36,3 @@ ropey = "1.6"
 cstree = { version = "0.14", features = ["derive", "multi_threaded_interning"] }
 tendril = "0.5"
 rand = "0.10"
-
-[target.'cfg(not(target_family = "wasm"))'.dependencies]
-tokio = { version = "1", features = ["full"] }
-astral-tokio-tar = "0.7"
-tokio-stream = "0.1"
-dirs = "7"
-
-[target.'cfg(target_family = "wasm")'.dependencies]
-tokio = { version = "1", default-features = false, features = ["sync"] }
-pollster = "1"
-
-[features]
-default = ["desktop"]
-web = ["dioxus/web"]
-desktop = ["dioxus/desktop"]
-mobile = ["dioxus/mobile"]
-native = ["dioxus/native"]

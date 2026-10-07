@@ -1,0 +1,38 @@
+[package]
+name = "app"
+
+[dependencies]
+anyhow.workspace = true
+dioxus.workspace = true
+dioxus-stores.workspace = true
+clap.workspace = true
+serde_json.workspace = true
+text-size.workspace = true
+serde.workspace = true
+toml.workspace = true
+thiserror.workspace = true
+enum_dispatch.workspace = true
+strum.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+ropey.workspace = true
+cstree.workspace = true
+tendril.workspace = true
+rand.workspace = true
+
+[target.'cfg(not(target_family = "wasm"))'.dependencies]
+tokio = { workspace = true, features = ["full"] }
+astral-tokio-tar.workspace = true
+tokio-stream.workspace = true
+dirs.workspace = true
+
+[target.'cfg(target_family = "wasm")'.dependencies]
+tokio = { workspace = true, default-features = false, features = ["sync"] }
+pollster.workspace = true
+
+[features]
+default = ["desktop"]
+web = ["dioxus/web"]
+desktop = ["dioxus/desktop"]
+mobile = ["dioxus/mobile"]
+native = ["dioxus/native"]

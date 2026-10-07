@@ -83,7 +83,6 @@ impl Buffer {
                 }
             }
         }
-
         count
     }
 
