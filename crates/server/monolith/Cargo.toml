@@ -1,0 +1,7 @@
+[package]
+name = "monolith"
+
+[dependencies]
+axum.workspace = true
+tokio.workspace = true
+tower.workspace = true
