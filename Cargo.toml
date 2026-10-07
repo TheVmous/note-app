@@ -10,6 +10,7 @@ edition = "2024"
 axum = { version = "0.8", features = ["macros"] }
 axum-extra = { version = "0.12", features = ["typed-header"] }
 tower = { version = "0.5", features = ["util"] }
+uuid = { version = "1", features = ["v7"] }
 tower-http = { version = "0.7", features = [
     "trace",
     "add-extension",
@@ -26,7 +27,7 @@ text-size = "1.1"
 serde = { version = "1.0", features = ["derive"] }
 toml = "1.1"
 thiserror = "2"
-tokio = { version = "1", default-features = false }
+tokio = { version = "1", default-features = false, features = ["full"] }
 astral-tokio-tar = "0.7"
 tokio-stream = "0.1"
 dirs = "7"
