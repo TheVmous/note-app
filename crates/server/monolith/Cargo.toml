@@ -1,5 +1,7 @@
 [package]
 name = "monolith"
+version.workspace = true
+edition.workspace = true
 
 [dependencies]
 axum.workspace = true

@@ -6,11 +6,9 @@ let
   nativeLibs = with pkgs; [
     glib
     gtk3
-    webkitgtk_4_1
     libsoup_3
     openssl
     xdotool
-    libayatana-appindicator
   ];
 in
 pkgs.mkShell {

@@ -291,7 +291,7 @@ dependencies = [
 
 [[package]]
 name = "app"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
  "anyhow",
  "astral-tokio-tar",
@@ -4244,7 +4244,7 @@ dependencies = [
 
 [[package]]
 name = "monolith"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
  "axum",
  "tokio",

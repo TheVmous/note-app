@@ -84,9 +84,9 @@ impl Editor {
     }
 
     pub async fn add_screen(&mut self, screen: Screen) -> ScreenId {
-        self.next_id += 1;
         let id = ScreenId(self.next_id);
         self.screens.insert(id, screen);
+        self.next_id += 1;
         id
     }
 

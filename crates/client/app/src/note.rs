@@ -6,7 +6,6 @@ use std::{
 };
 
 use dioxus_stores::Store;
-use text_size::TextRange;
 
 use crate::{Result, buffer::Buffer, screen::ScreenOps};
 
@@ -15,7 +14,6 @@ pub struct Note {
     pub path: PathBuf,
     pub content: Buffer,
     pub saved_content: Option<Arc<str>>,
-    pub cursor: TextRange,
 }
 
 impl Note {
@@ -23,7 +21,6 @@ impl Note {
         Note {
             path,
             content: Buffer::default(),
-            cursor: TextRange::default(),
             saved_content: None,
         }
     }
@@ -44,7 +41,6 @@ impl Note {
             path,
             content: Buffer::new(&buffer),
             saved_content: Some(buffer.into()),
-            cursor: TextRange::default(),
         })
     }
 
@@ -59,6 +55,6 @@ impl Note {
 
 impl ScreenOps for Note {
     fn title(&self) -> String {
-        "file".into()
+        "file".to_string()
     }
 }

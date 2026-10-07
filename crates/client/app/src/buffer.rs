@@ -201,7 +201,8 @@ pub enum Mode {
 }
 
 mod tests {
-    use crate::{buffer::Buffer, cursor::Cursor};
+    #[allow(unused)]
+    use super::*;
 
     #[test]
     pub fn test_transaction() {
