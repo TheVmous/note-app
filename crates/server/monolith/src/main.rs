@@ -6,11 +6,12 @@ use axum::{
 use tokio::sync::{Mutex, RwLock};
 use uuid::{Timestamp, Uuid};
 
-use crate::api::get_user_cred;
+use crate::api::auth::get_user_cred;
 mod api;
 
 #[tokio::main]
 async fn main() {
+    dotenvy::dotenv().ok();
     let mut app = Router::new()
         .route("/login",post(get_user_cred));
         

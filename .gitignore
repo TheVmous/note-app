@@ -1,3 +1,4 @@
 /target
 text.txt
 .direnv/
+.env

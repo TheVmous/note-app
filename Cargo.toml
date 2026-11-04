@@ -40,4 +40,5 @@ ropey = "1.6"
 cstree = { version = "0.14", features = ["derive", "multi_threaded_interning"] }
 tendril = "0.5"
 rand = "0.10"
-jsonwebtoken = "11.1.0"
+jsonwebtoken = { version = "11", features = ["aws_lc_rs"] }
+dotenvy = "0.15"
